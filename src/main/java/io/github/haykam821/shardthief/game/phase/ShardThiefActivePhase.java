@@ -277,12 +277,11 @@ public class ShardThiefActivePhase {
 
 		for (PlayerShardEntry entry : this.players) {
 			entry.tick();
-			if (entry.equals(this.shardHolder)) continue;
 
 			ServerPlayerEntity player = entry.getPlayer();
 			ShardThiefActivePhase.respawnIfOutOfBounds(player, this.map, this.gameSpace.getWorld());
 
-			if (this.canPlayerPickUpDroppedShard(player)) {
+			if (!entry.equals(this.shardHolder) && this.canPlayerPickUpDroppedShard(player)) {
 				this.pickUpShard(entry);
 			}
 		}
