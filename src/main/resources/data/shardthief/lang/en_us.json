@@ -1,5 +1,6 @@
 {
 	"gameType.shardthief.shard_thief": "Shard Thief",
+	"text.shardthief.dropped_shard_reset": "The dropped shard was reset because it remained inactive for too long!",
 	"text.shardthief.guide.hold_shard": "Hold the shard for enough time to win!",
 	"text.shardthief.guide.steal_shard": "Punch other players to steal the shard from them.",
 	"text.shardthief.guide.drop_shard": "Use your bow to make players drop the shard from far away.",

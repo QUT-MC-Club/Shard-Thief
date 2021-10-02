@@ -1,5 +1,6 @@
 package io.github.haykam821.shardthief.game;
 
+import io.github.haykam821.shardthief.game.phase.ShardThiefActivePhase;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
@@ -8,6 +9,9 @@ import net.minecraft.block.SlabBlock;
 import net.minecraft.block.StairsBlock;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.state.property.Properties;
+import net.minecraft.text.Text;
+import net.minecraft.text.TranslatableText;
+import net.minecraft.util.Formatting;
 import net.minecraft.util.Tickable;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
@@ -19,12 +23,16 @@ public class DroppedShard implements Tickable {
 	private static final BlockState SLAB_DROP_STATE = Blocks.PRISMARINE_SLAB.getDefaultState();
 	private static final BlockState STAIRS_DROP_STATE = Blocks.PRISMARINE_STAIRS.getDefaultState();
 
+	private final ShardThiefActivePhase phase;
 	private final BlockPos pos;
 	private final Box pickUpBox;
 	private final BlockState oldState;
-	private int invulnerability;
+	private final int invulnerability;
 
-	public DroppedShard(BlockPos pos, BlockState oldState, int invulnerability) {
+	private int ticks = 0;
+
+	public DroppedShard(ShardThiefActivePhase phase, BlockPos pos, BlockState oldState, int invulnerability) {
+		this.phase = phase;
 		this.pos = pos;
 		this.pickUpBox = new Box(pos, pos.add(1, 3, 1));
 		this.oldState = oldState;
@@ -63,14 +71,17 @@ public class DroppedShard implements Tickable {
 		world.setBlockState(this.pos, this.oldState, 3);
 	}
 
+	public Text getResetMessage() {
+		return new TranslatableText("text.shardthief.dropped_shard_reset").formatted(Formatting.RED);
+	}
+
 	public boolean canPlayerPickUp(PlayerEntity player) {
-		return this.invulnerability <= 0 && this.pickUpBox.intersects(player.getBoundingBox());
+		return this.ticks > this.invulnerability && this.pickUpBox.intersects(player.getBoundingBox());
 	}
 
 	@Override
 	public void tick() {
-		if (this.invulnerability > 0) {
-			this.invulnerability -= 1;
-		}
+		this.ticks += 1;
+		this.phase.attemptResetShard(this.ticks, this.pos);
 	}
 }

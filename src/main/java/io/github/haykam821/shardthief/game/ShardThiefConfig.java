@@ -18,7 +18,8 @@ public class ShardThiefConfig {
 			Codec.INT.optionalFieldOf("shard_invulnerability", 10).forGetter(ShardThiefConfig::getShardInvulnerability),
 			Codec.INT.optionalFieldOf("kit_restock_interval", 20 * 5).forGetter(ShardThiefConfig::getKitRestockInterval),
 			Codec.INT.optionalFieldOf("max_arrows", 3).forGetter(ShardThiefConfig::getMaxArrows),
-			Codec.INT.optionalFieldOf("speed_amplifier", 2).forGetter(ShardThiefConfig::getSpeedAmplifier)
+			Codec.INT.optionalFieldOf("speed_amplifier", 2).forGetter(ShardThiefConfig::getSpeedAmplifier),
+			Codec.INT.optionalFieldOf("dropped_shard_reset_ticks", 20 * 15).forGetter(ShardThiefConfig::getDroppedShardResetTicks)
 		).apply(instance, ShardThiefConfig::new);
 	});
 
@@ -32,8 +33,9 @@ public class ShardThiefConfig {
 	private final int kitRestockInterval;
 	private final int maxArrows;
 	private final int speedAmplifier;
+	private final int droppedShardResetTicks;
 
-	public ShardThiefConfig(ShardThiefMapConfig mapConfig, PlayerConfig playerConfig, int guideTicks, int startingCounts, int restartCounts, int countDuration, int shardInvulnerability, int kitRestockInterval, int maxArrows, int speedAmplifier) {
+	public ShardThiefConfig(ShardThiefMapConfig mapConfig, PlayerConfig playerConfig, int guideTicks, int startingCounts, int restartCounts, int countDuration, int shardInvulnerability, int kitRestockInterval, int maxArrows, int speedAmplifier, int droppedShardResetTicks) {
 		this.mapConfig = mapConfig;
 		this.playerConfig = playerConfig;
 		this.guideTicks = guideTicks;
@@ -44,6 +46,7 @@ public class ShardThiefConfig {
 		this.kitRestockInterval = kitRestockInterval;
 		this.maxArrows = maxArrows;
 		this.speedAmplifier = speedAmplifier;
+		this.droppedShardResetTicks = droppedShardResetTicks;
 	}
 
 	public ShardThiefMapConfig getMapConfig() {
@@ -84,5 +87,9 @@ public class ShardThiefConfig {
 
 	public int getSpeedAmplifier() {
 		return this.speedAmplifier;
+	}
+
+	public int getDroppedShardResetTicks() {
+		return this.droppedShardResetTicks;
 	}
 }

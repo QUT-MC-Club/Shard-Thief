@@ -190,9 +190,26 @@ public class ShardThiefActivePhase {
 		}
 	}
 
+	public void attemptResetShard(int ticks, BlockPos pos) {
+		if (ticks < this.config.getDroppedShardResetTicks()) return;
+		if (pos.equals(this.map.getCenterSpawnPos().down())) return;
+
+		this.droppedShard.reset(this.world);
+
+		this.placeShard(this.map.getCenterSpawnPos().down());
+		this.playDropSound(pos);
+
+		Text message = this.droppedShard.getResetMessage();
+		this.gameSpace.getPlayers().sendMessage(message);
+	}
+
 	private void placeShard(BlockPos pos) {
-		this.droppedShard = new DroppedShard(pos, this.world.getBlockState(pos), this.config.getShardInvulnerability());
+		this.droppedShard = new DroppedShard(this, pos, this.world.getBlockState(pos), this.config.getShardInvulnerability());
 		this.droppedShard.place(this.world);
+	}
+
+	private void playDropSound(BlockPos pos) {
+		world.playSound(null, pos, SoundEvents.ENTITY_SPLASH_POTION_BREAK, SoundCategory.PLAYERS, 1, 1);
 	}
 
 	private void dropShard() {
@@ -201,7 +218,7 @@ public class ShardThiefActivePhase {
 
 		this.clearShard();
 
-		this.world.playSound(null, pos, SoundEvents.ENTITY_SPLASH_POTION_BREAK, SoundCategory.PLAYERS, 1, 1);
+		this.playDropSound(pos);
 	}
 
 	private Formatting getCountTitleColor() {
