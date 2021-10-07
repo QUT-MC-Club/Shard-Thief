@@ -20,7 +20,6 @@ import xyz.nucleoid.plasmid.game.event.GameTickListener;
 import xyz.nucleoid.plasmid.game.event.PlayerAddListener;
 import xyz.nucleoid.plasmid.game.event.PlayerDeathListener;
 import xyz.nucleoid.plasmid.game.event.RequestStartListener;
-import xyz.nucleoid.plasmid.game.rule.RuleResult;
 
 public class ShardThiefWaitingPhase {
 	private final GameSpace gameSpace;
@@ -43,18 +42,18 @@ public class ShardThiefWaitingPhase {
 			.setDefaultGameMode(GameMode.ADVENTURE);
 
 		return context.createOpenProcedure(worldConfig, game -> {
-			ShardThiefWaitingPhase waiting = new ShardThiefWaitingPhase(game.getSpace(), map, config);
+			ShardThiefWaitingPhase waiting = new ShardThiefWaitingPhase(game.getGameSpace(), map, config);
 
 			GameWaitingLobby.applyTo(game, config.getPlayerConfig());
 
-			ShardThiefActivePhase.setRules(game, RuleResult.DENY);
+			ShardThiefActivePhase.setRules(game, false);
 
 			// Listeners
-			game.on(GameOpenListener.EVENT, waiting::open);
-			game.on(GameTickListener.EVENT, waiting::tick);
-			game.on(PlayerAddListener.EVENT, waiting::addPlayer);
-			game.on(PlayerDeathListener.EVENT, waiting::onPlayerDeath);
-			game.on(RequestStartListener.EVENT, waiting::requestStart);
+			game.listen(GameOpenListener.EVENT, waiting::open);
+			game.listen(GameTickListener.EVENT, waiting::tick);
+			game.listen(PlayerAddListener.EVENT, waiting::addPlayer);
+			game.listen(PlayerDeathListener.EVENT, waiting::onPlayerDeath);
+			game.listen(RequestStartListener.EVENT, waiting::requestStart);
 		});
 	}
 

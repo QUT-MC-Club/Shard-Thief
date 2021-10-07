@@ -42,7 +42,6 @@ import xyz.nucleoid.plasmid.game.event.PlayerDamageListener;
 import xyz.nucleoid.plasmid.game.event.PlayerDeathListener;
 import xyz.nucleoid.plasmid.game.event.PlayerRemoveListener;
 import xyz.nucleoid.plasmid.game.rule.GameRule;
-import xyz.nucleoid.plasmid.game.rule.RuleResult;
 import xyz.nucleoid.plasmid.widget.GlobalWidgets;
 
 public class ShardThiefActivePhase {
@@ -79,15 +78,20 @@ public class ShardThiefActivePhase {
 		this.guideTicks = this.config.getGuideTicks();
 	}
 
-	public static void setRules(GameLogic game, RuleResult pvpRule) {
-		game.setRule(GameRule.CRAFTING, RuleResult.DENY);
-		game.setRule(GameRule.FALL_DAMAGE, RuleResult.DENY);
-		game.setRule(GameRule.HUNGER, RuleResult.DENY);
-		game.setRule(Main.ICE_MELTING, RuleResult.DENY);
-		game.setRule(GameRule.INTERACTION, RuleResult.DENY);
-		game.setRule(GameRule.PORTALS, RuleResult.DENY);
-		game.setRule(GameRule.PVP, pvpRule);
-		game.setRule(GameRule.THROW_ITEMS, RuleResult.DENY);
+	public static void setRules(GameLogic game, boolean pvp) {
+		game.deny(GameRule.CRAFTING);
+		game.deny(GameRule.FALL_DAMAGE);
+		game.deny(GameRule.HUNGER);
+		game.deny(Main.ICE_MELTING);
+		game.deny(GameRule.INTERACTION);
+		game.deny(GameRule.PORTALS);
+		game.deny(GameRule.THROW_ITEMS);
+
+		if (pvp) {
+			game.allow(GameRule.PVP);
+		} else {
+			game.deny(GameRule.PVP);
+		}
 	}
 
 	public static void open(GameSpace gameSpace, ShardThiefMap map, ShardThiefConfig config, FloatingText guideText) {
@@ -95,16 +99,16 @@ public class ShardThiefActivePhase {
 			GlobalWidgets widgets = new GlobalWidgets(game);
 
 			ShardThiefActivePhase active = new ShardThiefActivePhase(gameSpace, map, config, Sets.newHashSet(gameSpace.getPlayers()), widgets, guideText);
-			ShardThiefActivePhase.setRules(game, RuleResult.ALLOW);
+			ShardThiefActivePhase.setRules(game, true);
 
 			// Listeners
-			game.on(GameCloseListener.EVENT, active::close);
-			game.on(GameOpenListener.EVENT, active::open);
-			game.on(GameTickListener.EVENT, active::tick);
-			game.on(PlayerAddListener.EVENT, active::addPlayer);
-			game.on(PlayerDamageListener.EVENT, active::onPlayerDamage);
-			game.on(PlayerDeathListener.EVENT, active::onPlayerDeath);
-			game.on(PlayerRemoveListener.EVENT, active::removePlayer);
+			game.listen(GameCloseListener.EVENT, active::close);
+			game.listen(GameOpenListener.EVENT, active::open);
+			game.listen(GameTickListener.EVENT, active::tick);
+			game.listen(PlayerAddListener.EVENT, active::addPlayer);
+			game.listen(PlayerDamageListener.EVENT, active::onPlayerDamage);
+			game.listen(PlayerDeathListener.EVENT, active::onPlayerDeath);
+			game.listen(PlayerRemoveListener.EVENT, active::removePlayer);
 		});
 	}
 
