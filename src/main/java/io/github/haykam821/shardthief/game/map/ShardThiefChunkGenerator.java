@@ -15,7 +15,10 @@ import net.minecraft.structure.processor.StructureProcessorRule;
 import net.minecraft.structure.rule.AlwaysTrueRuleTest;
 import net.minecraft.structure.rule.RuleTest;
 import net.minecraft.util.BlockRotation;
+import net.minecraft.util.math.BlockBox;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.ChunkPos;
+import net.minecraft.util.math.Vec3i;
 import net.minecraft.util.registry.Registry;
 import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.world.ChunkRegion;
@@ -63,15 +66,19 @@ public final class ShardThiefChunkGenerator extends GameChunkGenerator {
 		placementData.setRotation(rotation);
 		placementData.addProcessor(new RuleStructureProcessor(this.getRules(terracotta, concrete, stainedGlass, wool, carpet)));
 
-		this.structure.place(region, pos, placementData, region.getRandom());
+
+		ChunkPos chunkPos = region.getCenterPos();
+		BlockBox chunkBox = new BlockBox(chunkPos.getStartX(), region.getBottomY(), chunkPos.getStartZ(), chunkPos.getEndX(), region.getTopY(), chunkPos.getEndZ());
+
+		if (!chunkBox.intersects(this.structure.calculateBoundingBox(placementData, pos))) return;
+		placementData.setBoundingBox(chunkBox);
+
+		this.structure.place(region, pos, pos, placementData, region.getRandom(), Block.NO_REDRAW);
 	}
 
 	@Override
 	public void generateFeatures(ChunkRegion region, StructureAccessor structures) {
-		if (region.getCenterChunkX() != 0) return;
-		if (region.getCenterChunkZ() != 0) return;
-
-		BlockPos size = this.structure.getSize();
+		Vec3i size = this.structure.getSize();
 		int x = size.getX() * 2 - 1;
 		int z = size.getZ() * 2 - 1;
 

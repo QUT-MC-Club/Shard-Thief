@@ -1,6 +1,5 @@
 {
 	"type": "shardthief:shard_thief",
-	"name": "Shard Thief: Jungle Temple",
 	"map": {
 		"structure_id": "shardthief:jungle_temple",
 		"biome_id": "minecraft:jungle",

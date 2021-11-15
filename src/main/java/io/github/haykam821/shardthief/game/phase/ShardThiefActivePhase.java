@@ -5,7 +5,7 @@ import java.util.stream.Collectors;
 
 import com.google.common.collect.Sets;
 
-import io.github.haykam821.shardthief.Main;
+import eu.pb4.holograms.api.holograms.AbstractHologram;
 import io.github.haykam821.shardthief.game.DroppedShard;
 import io.github.haykam821.shardthief.game.PlayerShardEntry;
 import io.github.haykam821.shardthief.game.ShardInventoryManager;
@@ -18,7 +18,6 @@ import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.effect.StatusEffects;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.projectile.ProjectileEntity;
-import net.minecraft.network.packet.s2c.play.TitleS2CPacket;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
@@ -29,20 +28,19 @@ import net.minecraft.util.ActionResult;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.GameMode;
-import xyz.nucleoid.plasmid.entity.FloatingText;
+import xyz.nucleoid.plasmid.game.GameActivity;
 import xyz.nucleoid.plasmid.game.GameCloseReason;
-import xyz.nucleoid.plasmid.game.GameLogic;
 import xyz.nucleoid.plasmid.game.GameSpace;
-import xyz.nucleoid.plasmid.game.event.GameCloseListener;
-import xyz.nucleoid.plasmid.game.event.GameOpenListener;
-import xyz.nucleoid.plasmid.game.event.GameTickListener;
-import xyz.nucleoid.plasmid.game.event.PlayerAddListener;
-import xyz.nucleoid.plasmid.game.event.PlayerDamageListener;
-import xyz.nucleoid.plasmid.game.event.PlayerDeathListener;
-import xyz.nucleoid.plasmid.game.event.PlayerRemoveListener;
-import xyz.nucleoid.plasmid.game.rule.GameRule;
-import xyz.nucleoid.plasmid.widget.GlobalWidgets;
+import xyz.nucleoid.plasmid.game.common.GlobalWidgets;
+import xyz.nucleoid.plasmid.game.event.GameActivityEvents;
+import xyz.nucleoid.plasmid.game.event.GamePlayerEvents;
+import xyz.nucleoid.plasmid.game.player.PlayerOffer;
+import xyz.nucleoid.plasmid.game.player.PlayerOfferResult;
+import xyz.nucleoid.plasmid.game.rule.GameRuleType;
+import xyz.nucleoid.stimuli.event.player.PlayerDamageEvent;
+import xyz.nucleoid.stimuli.event.player.PlayerDeathEvent;
 
 public class ShardThiefActivePhase {
 	private final ServerWorld world;
@@ -52,7 +50,7 @@ public class ShardThiefActivePhase {
 	private final Set<PlayerShardEntry> players;
 	private final ShardThiefCountBar countBar;
 
-	private final FloatingText guideText;
+	private final AbstractHologram guideText;
 	private int guideTicks;
 
 	private PlayerShardEntry shardHolder;
@@ -60,8 +58,8 @@ public class ShardThiefActivePhase {
 	private int ticksUntilKitRestock;
 	private DroppedShard droppedShard;
 
-	public ShardThiefActivePhase(GameSpace gameSpace, ShardThiefMap map, ShardThiefConfig config, Set<ServerPlayerEntity> players, GlobalWidgets widgets, FloatingText guideText) {
-		this.world = gameSpace.getWorld();
+	public ShardThiefActivePhase(GameSpace gameSpace, ServerWorld world, ShardThiefMap map, ShardThiefConfig config, Set<ServerPlayerEntity> players, GlobalWidgets widgets, AbstractHologram guideText) {
+		this.world = world;
 		this.gameSpace = gameSpace;
 		this.map = map;
 		this.config = config;
@@ -70,7 +68,7 @@ public class ShardThiefActivePhase {
 			return new PlayerShardEntry(player, this.config.getStartingCounts(), this.config.getShardInvulnerability());
 		}).collect(Collectors.toSet());
 
-		this.countBar = new ShardThiefCountBar(gameSpace.getGameConfig().getNameText(), widgets);
+		this.countBar = new ShardThiefCountBar(gameSpace.getMetadata().sourceConfig().name(), widgets);
 
 		this.placeShard(this.map.getCenterSpawnPos().down());
 
@@ -78,55 +76,50 @@ public class ShardThiefActivePhase {
 		this.guideTicks = this.config.getGuideTicks();
 	}
 
-	public static void setRules(GameLogic game, boolean pvp) {
-		game.deny(GameRule.CRAFTING);
-		game.deny(GameRule.FALL_DAMAGE);
-		game.deny(GameRule.HUNGER);
-		game.deny(Main.ICE_MELTING);
-		game.deny(GameRule.INTERACTION);
-		game.deny(GameRule.PORTALS);
-		game.deny(GameRule.THROW_ITEMS);
+	public static void setRules(GameActivity activity, boolean pvp) {
+		activity.deny(GameRuleType.CRAFTING);
+		activity.deny(GameRuleType.FALL_DAMAGE);
+		activity.deny(GameRuleType.HUNGER);
+		activity.deny(GameRuleType.ICE_MELT);
+		activity.deny(GameRuleType.INTERACTION);
+		activity.deny(GameRuleType.PORTALS);
+		activity.deny(GameRuleType.THROW_ITEMS);
 
 		if (pvp) {
-			game.allow(GameRule.PVP);
+			activity.allow(GameRuleType.PVP);
 		} else {
-			game.deny(GameRule.PVP);
+			activity.deny(GameRuleType.PVP);
 		}
 	}
 
-	public static void open(GameSpace gameSpace, ShardThiefMap map, ShardThiefConfig config, FloatingText guideText) {
-		gameSpace.openGame(game -> {
-			GlobalWidgets widgets = new GlobalWidgets(game);
+	public static void open(GameSpace gameSpace, ServerWorld world, ShardThiefMap map, ShardThiefConfig config, AbstractHologram guideText) {
+		gameSpace.setActivity(activity -> {
+			GlobalWidgets widgets = GlobalWidgets.addTo(activity);
 
-			ShardThiefActivePhase active = new ShardThiefActivePhase(gameSpace, map, config, Sets.newHashSet(gameSpace.getPlayers()), widgets, guideText);
-			ShardThiefActivePhase.setRules(game, true);
+			ShardThiefActivePhase active = new ShardThiefActivePhase(gameSpace, world, map, config, Sets.newHashSet(gameSpace.getPlayers()), widgets, guideText);
+			ShardThiefActivePhase.setRules(activity, true);
 
 			// Listeners
-			game.listen(GameCloseListener.EVENT, active::close);
-			game.listen(GameOpenListener.EVENT, active::open);
-			game.listen(GameTickListener.EVENT, active::tick);
-			game.listen(PlayerAddListener.EVENT, active::addPlayer);
-			game.listen(PlayerDamageListener.EVENT, active::onPlayerDamage);
-			game.listen(PlayerDeathListener.EVENT, active::onPlayerDeath);
-			game.listen(PlayerRemoveListener.EVENT, active::removePlayer);
+			activity.listen(GameActivityEvents.ENABLE, active::enable);
+			activity.listen(GameActivityEvents.TICK, active::tick);
+			activity.listen(GamePlayerEvents.OFFER, active::offerPlayer);
+			activity.listen(PlayerDamageEvent.EVENT, active::onPlayerDamage);
+			activity.listen(PlayerDeathEvent.EVENT, active::onPlayerDeath);
+			activity.listen(GamePlayerEvents.REMOVE, active::removePlayer);
 		});
 	}
 
-	private void open() {
+	private void enable() {
 		int index = 0;
 		for (PlayerShardEntry entry : this.players) {
 			ServerPlayerEntity player = entry.getPlayer();
 
-			player.setGameMode(GameMode.ADVENTURE);
+			player.changeGameMode(GameMode.ADVENTURE);
 			ShardInventoryManager.giveNonShardInventory(player);
 
 			ShardThiefActivePhase.spawn(this.world, this.map, player, index);
 			index += 1;
 		}
-	}
-
-	private void close() {
-		this.countBar.remove();
 	}
 
 	public float getTimerBarPercent() {
@@ -143,7 +136,7 @@ public class ShardThiefActivePhase {
 	private void clearShard() {
 		if (this.shardHolder == null) return;
 
-		this.shardHolder.getPlayer().inventory.clear();
+		this.shardHolder.getPlayer().getInventory().clear();
 		ShardInventoryManager.giveNonShardInventory(this.shardHolder.getPlayer());
 
 		if (this.shardHolder.getCounts() < this.config.getRestartCounts()) {
@@ -159,13 +152,13 @@ public class ShardThiefActivePhase {
 		this.shardHolder = entry;
 		entry.setInvulnerability(this.config.getShardInvulnerability());
 
-		entry.getPlayer().inventory.clear();
+		entry.getPlayer().getInventory().clear();
 		ShardInventoryManager.giveShardInventory(entry.getPlayer());
 	}
 
 	private void sendStealMessage() {
 		Text stealText = this.shardHolder.getStealMessage();
-		this.gameSpace.getPlayers().sendPacket(new TitleS2CPacket(TitleS2CPacket.Action.ACTIONBAR, stealText));
+		this.gameSpace.getPlayers().sendActionBar(stealText);
 	}
 
 	private void pickUpShard(PlayerShardEntry entry) {
@@ -242,16 +235,16 @@ public class ShardThiefActivePhase {
 			Text message = this.shardHolder.getWinMessage();
 			this.gameSpace.getPlayers().sendMessage(message);
 
-			this.gameSpace.getPlayers().sendSound(SoundEvents.ENTITY_FIREWORK_ROCKET_BLAST, SoundCategory.PLAYERS, 1, 1);
+			this.gameSpace.getPlayers().playSound(SoundEvents.ENTITY_FIREWORK_ROCKET_BLAST, SoundCategory.PLAYERS, 1, 1);
 
 			this.gameSpace.close(GameCloseReason.FINISHED);
 			return;
 		} else if (this.shardHolder.getCounts() <= 5) {
 			String countString = Integer.toString(this.shardHolder.getCounts());
 			Text countText = new LiteralText(countString).formatted(this.getCountTitleColor()).formatted(Formatting.BOLD);
-			this.gameSpace.getPlayers().sendPacket(new TitleS2CPacket(TitleS2CPacket.Action.TITLE, countText));
+			this.gameSpace.getPlayers().showTitle(countText, 70);
 
-			this.gameSpace.getPlayers().sendSound(SoundEvents.BLOCK_NOTE_BLOCK_BIT, SoundCategory.PLAYERS, 1, 1.5f);
+			this.gameSpace.getPlayers().playSound(SoundEvents.BLOCK_NOTE_BLOCK_BIT, SoundCategory.PLAYERS, 1, 1.5f);
 		}
 
 		this.resetTicksUntilCount();
@@ -277,7 +270,7 @@ public class ShardThiefActivePhase {
 		if (this.guideTicks > 0) {
 			this.guideTicks -= 1;
 		} else if (this.guideText != null && this.guideTicks == 0) {
-			this.guideText.remove();
+			this.guideText.hide();
 		}
 
 		if (this.droppedShard != null) {
@@ -300,7 +293,7 @@ public class ShardThiefActivePhase {
 			entry.tick();
 
 			ServerPlayerEntity player = entry.getPlayer();
-			ShardThiefActivePhase.respawnIfOutOfBounds(player, this.map, this.gameSpace.getWorld());
+			ShardThiefActivePhase.respawnIfOutOfBounds(player, this.map, this.world);
 
 			if (!entry.equals(this.shardHolder) && this.canPlayerPickUpDroppedShard(player)) {
 				this.pickUpShard(entry);
@@ -308,12 +301,14 @@ public class ShardThiefActivePhase {
 		}
 	}
 
-	private void setSpectator(PlayerEntity player) {
-		player.setGameMode(GameMode.SPECTATOR);
+	private void setSpectator(ServerPlayerEntity player) {
+		player.changeGameMode(GameMode.SPECTATOR);
 	}
 
-	private void addPlayer(ServerPlayerEntity player) {
-		this.setSpectator(player);
+	private PlayerOfferResult offerPlayer(PlayerOffer offer) {
+		return offer.accept(this.world, Vec3d.of(this.map.getCenterSpawnPos())).and(() -> {
+			this.setSpectator(offer.player());
+		});
 	}
 
 	private void removePlayer(ServerPlayerEntity player) {

@@ -5,9 +5,8 @@ import net.minecraft.text.LiteralText;
 import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
-import net.minecraft.util.Tickable;
 
-public class PlayerShardEntry implements Comparable<PlayerShardEntry>, Tickable {
+public class PlayerShardEntry implements Comparable<PlayerShardEntry> {
 	private final ServerPlayerEntity player;
 	private int counts;
 	private int invulnerability;
@@ -55,7 +54,6 @@ public class PlayerShardEntry implements Comparable<PlayerShardEntry>, Tickable 
 		return this.invulnerability <= 0;
 	}
 
-	@Override
 	public void tick() {
 		if (this.invulnerability > 0) {
 			this.invulnerability -= 1;

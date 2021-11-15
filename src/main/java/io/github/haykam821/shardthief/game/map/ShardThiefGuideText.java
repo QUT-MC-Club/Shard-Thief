@@ -1,12 +1,13 @@
 package io.github.haykam821.shardthief.game.map;
 
+import eu.pb4.holograms.api.Holograms;
+import eu.pb4.holograms.api.holograms.AbstractHologram;
+import eu.pb4.holograms.api.holograms.AbstractHologram.VerticalAlign;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableText;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.math.Vec3d;
-import xyz.nucleoid.plasmid.entity.FloatingText;
-import xyz.nucleoid.plasmid.entity.FloatingText.VerticalAlign;
 
 public final class ShardThiefGuideText {
 	private static final Formatting GUIDE_FORMATTING = Formatting.GOLD;
@@ -18,7 +19,11 @@ public final class ShardThiefGuideText {
 		new TranslatableText("text.shardthief.guide.pick_up_shard").formatted(GUIDE_FORMATTING),
 	};
 
-	public static FloatingText spawn(ServerWorld world, Vec3d pos) {
-		return FloatingText.spawn(world, pos, GUIDE_LINES, VerticalAlign.CENTER);
+	public static AbstractHologram spawn(ServerWorld world, Vec3d pos) {
+		AbstractHologram hologram = Holograms.create(world, pos, GUIDE_LINES);
+		hologram.setAlignment(VerticalAlign.CENTER);
+
+		hologram.show();
+		return hologram;
 	}
 }

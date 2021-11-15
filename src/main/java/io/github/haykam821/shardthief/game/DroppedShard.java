@@ -12,13 +12,12 @@ import net.minecraft.state.property.Properties;
 import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableText;
 import net.minecraft.util.Formatting;
-import net.minecraft.util.Tickable;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
 import net.minecraft.world.BlockView;
 import net.minecraft.world.WorldAccess;
 
-public class DroppedShard implements Tickable {
+public class DroppedShard {
 	private static final BlockState FULL_DROP_STATE = Blocks.PRISMARINE.getDefaultState();
 	private static final BlockState SLAB_DROP_STATE = Blocks.PRISMARINE_SLAB.getDefaultState();
 	private static final BlockState STAIRS_DROP_STATE = Blocks.PRISMARINE_STAIRS.getDefaultState();
@@ -79,7 +78,6 @@ public class DroppedShard implements Tickable {
 		return this.ticks > this.invulnerability && this.pickUpBox.intersects(player.getBoundingBox());
 	}
 
-	@Override
 	public void tick() {
 		this.ticks += 1;
 		this.phase.attemptResetShard(this.ticks, this.pos);

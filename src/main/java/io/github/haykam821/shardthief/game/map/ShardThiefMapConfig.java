@@ -13,11 +13,11 @@ public class ShardThiefMapConfig {
 		return instance.group(
 			Identifier.CODEC.fieldOf("structure_id").forGetter(ShardThiefMapConfig::getStructureId),
 			Identifier.CODEC.fieldOf("biome_id").forGetter(ShardThiefMapConfig::getBiomeId),
-			RuleTest.field_25012.optionalFieldOf("terracotta_rule", new BlockMatchRuleTest(Blocks.WHITE_TERRACOTTA)).forGetter(ShardThiefMapConfig::getTerracottaRule),
-			RuleTest.field_25012.optionalFieldOf("concrete_rule", new BlockMatchRuleTest(Blocks.WHITE_CONCRETE)).forGetter(ShardThiefMapConfig::getConcreteRule),
-			RuleTest.field_25012.optionalFieldOf("stained_glass_rule", new BlockMatchRuleTest(Blocks.WHITE_STAINED_GLASS)).forGetter(ShardThiefMapConfig::getStainedGlassRule),
-			RuleTest.field_25012.optionalFieldOf("wool_rule", new BlockMatchRuleTest(Blocks.WHITE_WOOL)).forGetter(ShardThiefMapConfig::getWoolRule),
-			RuleTest.field_25012.optionalFieldOf("carpet_rule", new BlockMatchRuleTest(Blocks.WHITE_CARPET)).forGetter(ShardThiefMapConfig::getCarpetRule),
+			RuleTest.TYPE_CODEC.optionalFieldOf("terracotta_rule", new BlockMatchRuleTest(Blocks.WHITE_TERRACOTTA)).forGetter(ShardThiefMapConfig::getTerracottaRule),
+			RuleTest.TYPE_CODEC.optionalFieldOf("concrete_rule", new BlockMatchRuleTest(Blocks.WHITE_CONCRETE)).forGetter(ShardThiefMapConfig::getConcreteRule),
+			RuleTest.TYPE_CODEC.optionalFieldOf("stained_glass_rule", new BlockMatchRuleTest(Blocks.WHITE_STAINED_GLASS)).forGetter(ShardThiefMapConfig::getStainedGlassRule),
+			RuleTest.TYPE_CODEC.optionalFieldOf("wool_rule", new BlockMatchRuleTest(Blocks.WHITE_WOOL)).forGetter(ShardThiefMapConfig::getWoolRule),
+			RuleTest.TYPE_CODEC.optionalFieldOf("carpet_rule", new BlockMatchRuleTest(Blocks.WHITE_CARPET)).forGetter(ShardThiefMapConfig::getCarpetRule),
 			Codec.INT.optionalFieldOf("spawn_y_offset", 1).forGetter(ShardThiefMapConfig::getSpawnYOffset)
 		).apply(instance, ShardThiefMapConfig::new);
 	});

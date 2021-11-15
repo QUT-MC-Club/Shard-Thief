@@ -22,37 +22,36 @@ public class ShardInventoryManager {
 
 	private static void updateInventory(ServerPlayerEntity player) {
 		player.currentScreenHandler.sendContentUpdates();
-		player.playerScreenHandler.onContentChanged(player.inventory);
-		player.updateCursorStack();
+		player.playerScreenHandler.onContentChanged(player.getInventory());
 	}
 
 	public static void giveShardInventory(ServerPlayerEntity player) {
-		player.inventory.armor.set(3, SHARD_HOLDER_HELMET.copy());
-		player.inventory.armor.set(2, SHARD_HOLDER_CHESTPLATE.copy());
-		player.inventory.armor.set(1, SHARD_HOLDER_LEGGINGS.copy());
-		player.inventory.armor.set(0, SHARD_HOLDER_BOOTS.copy());
+		player.getInventory().armor.set(3, SHARD_HOLDER_HELMET.copy());
+		player.getInventory().armor.set(2, SHARD_HOLDER_CHESTPLATE.copy());
+		player.getInventory().armor.set(1, SHARD_HOLDER_LEGGINGS.copy());
+		player.getInventory().armor.set(0, SHARD_HOLDER_BOOTS.copy());
 	
 		for (int slot = 0; slot < 9; slot++) {
-			player.inventory.setStack(slot, SHARD_HOLDER_SHARD.copy());
+			player.getInventory().setStack(slot, SHARD_HOLDER_SHARD.copy());
 		}
 
 		ShardInventoryManager.updateInventory(player);
 	}
 
 	public static void giveNonShardInventory(ServerPlayerEntity player) {
-		player.inventory.setStack(0, NON_SHARD_HOLDER_BOW.copy());
+		player.getInventory().setStack(0, NON_SHARD_HOLDER_BOW.copy());
 		ShardInventoryManager.updateInventory(player);
 	}
 
 	public static void restockArrows(ServerPlayerEntity player, int maxArrows) {
-		int arrows = player.inventory.count(NON_SHARD_HOLDER_ARROW.getItem());
+		int arrows = player.getInventory().count(NON_SHARD_HOLDER_ARROW.getItem());
 		if (arrows <= maxArrows) {
-			player.inventory.clear();
+			player.getInventory().clear();
 			ShardInventoryManager.giveNonShardInventory(player);
 
 			ItemStack arrowStack = NON_SHARD_HOLDER_ARROW.copy();
 			arrowStack.setCount(arrows + 1);
-			player.inventory.setStack(1, arrowStack);
+			player.getInventory().setStack(1, arrowStack);
 
 			player.playSound(SoundEvents.ENTITY_ITEM_PICKUP, SoundCategory.PLAYERS, 1, 1);
 		}
@@ -61,7 +60,7 @@ public class ShardInventoryManager {
 	private static ItemStack createArmorStack(ItemConvertible item) {
 		return ItemStackBuilder.of(item)
 			.addEnchantment(Enchantments.BINDING_CURSE, 1)
-			.setColor(SHARD_HOLDER_ARMOR_COLOR)
+			.setDyeColor(SHARD_HOLDER_ARMOR_COLOR)
 			.setUnbreakable()
 			.build();
 	}

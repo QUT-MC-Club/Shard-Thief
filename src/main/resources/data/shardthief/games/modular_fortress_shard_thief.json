@@ -1,6 +1,5 @@
 {
 	"type": "shardthief:shard_thief",
-	"name": "Shard Thief: Modular Fortress",
 	"map": {
 		"structure_id": "shardthief:modular_fortress",
 		"biome_id": "minecraft:the_void",

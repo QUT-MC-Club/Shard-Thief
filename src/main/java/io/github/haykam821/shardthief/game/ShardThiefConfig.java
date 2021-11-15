@@ -4,7 +4,7 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 
 import io.github.haykam821.shardthief.game.map.ShardThiefMapConfig;
-import xyz.nucleoid.plasmid.game.config.PlayerConfig;
+import xyz.nucleoid.plasmid.game.common.config.PlayerConfig;
 
 public class ShardThiefConfig {
 	public static final Codec<ShardThiefConfig> CODEC = RecordCodecBuilder.create(instance -> {

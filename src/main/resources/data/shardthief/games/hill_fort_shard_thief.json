@@ -1,6 +1,5 @@
 {
 	"type": "shardthief:shard_thief",
-	"name": "Shard Thief: Hill Fort",
 	"map": {
 		"structure_id": "shardthief:hill_fort",
 		"biome_id": "minecraft:plains"

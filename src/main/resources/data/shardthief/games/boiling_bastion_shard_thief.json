@@ -1,6 +1,5 @@
 {
 	"type": "shardthief:shard_thief",
-	"name": "Shard Thief: Boiling Bastion",
 	"map": {
 		"structure_id": "shardthief:boiling_bastion",
 		"biome_id": "minecraft:soul_sand_valley",
