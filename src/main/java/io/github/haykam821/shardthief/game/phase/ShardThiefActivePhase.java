@@ -87,6 +87,10 @@ public class ShardThiefActivePhase {
 
 		if (pvp) {
 			activity.allow(GameRuleType.PVP);
+
+			activity.allow(GameRuleType.INTERACTION);
+			activity.deny(GameRuleType.USE_BLOCKS);
+			activity.deny(GameRuleType.USE_ENTITIES);
 		} else {
 			activity.deny(GameRuleType.PVP);
 		}
