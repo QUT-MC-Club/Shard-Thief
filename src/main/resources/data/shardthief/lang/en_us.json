@@ -18,8 +18,10 @@
 	"game.shardthief.weathered_wave_shard_thief": "Shard Thief: Weathered Wave",
 	"gameType.shardthief.shard_thief": "Shard Thief",
 	"text.shardthief.dropped_shard_reset": "The dropped shard was reset because it remained inactive for too long!",
-	"text.shardthief.guide.hold_shard": "Hold the shard for enough time to win!",
-	"text.shardthief.guide.steal_shard": "Punch other players to steal the shard from them.",
 	"text.shardthief.guide.drop_shard": "Use your bow to make players drop the shard from far away.",
-	"text.shardthief.guide.pick_up_shard": "Pick up dropped shards by running over them."
+	"text.shardthief.guide.hold_shard": "Hold the shard for enough time to win!",
+	"text.shardthief.guide.pick_up_shard": "Pick up dropped shards by running over them.",
+	"text.shardthief.guide.steal_shard": "Punch other players to steal the shard from them.",
+	"text.shardthief.shard_stolen": "%s has stolen the shard!",
+	"text.shardthief.win": "%s has won the game!"
 }
