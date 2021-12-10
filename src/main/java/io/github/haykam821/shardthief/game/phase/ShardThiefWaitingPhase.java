@@ -20,6 +20,7 @@ import xyz.nucleoid.plasmid.game.event.GameActivityEvents;
 import xyz.nucleoid.plasmid.game.event.GamePlayerEvents;
 import xyz.nucleoid.plasmid.game.player.PlayerOffer;
 import xyz.nucleoid.plasmid.game.player.PlayerOfferResult;
+import xyz.nucleoid.stimuli.event.player.PlayerDamageEvent;
 import xyz.nucleoid.stimuli.event.player.PlayerDeathEvent;
 
 public class ShardThiefWaitingPhase {
@@ -54,6 +55,7 @@ public class ShardThiefWaitingPhase {
 			activity.listen(GameActivityEvents.ENABLE, waiting::enable);
 			activity.listen(GameActivityEvents.TICK, waiting::tick);
 			activity.listen(GamePlayerEvents.OFFER, waiting::offerPlayer);
+			activity.listen(PlayerDamageEvent.EVENT, waiting::onPlayerDamage);
 			activity.listen(PlayerDeathEvent.EVENT, waiting::onPlayerDeath);
 			activity.listen(GameActivityEvents.REQUEST_START, waiting::requestStart);
 		});
@@ -83,9 +85,13 @@ public class ShardThiefWaitingPhase {
 		});
 	}
 
+	private ActionResult onPlayerDamage(ServerPlayerEntity player, DamageSource source, float amount) {
+		return ActionResult.FAIL;
+	}
+
 	private ActionResult onPlayerDeath(ServerPlayerEntity player, DamageSource source) {
 		// Respawn player
 		ShardThiefActivePhase.spawn(this.world, this.map, player, 0);
-		return ActionResult.SUCCESS;
+		return ActionResult.FAIL;
 	}
 }
