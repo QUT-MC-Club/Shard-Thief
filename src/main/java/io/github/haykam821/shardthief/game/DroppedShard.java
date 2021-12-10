@@ -14,6 +14,8 @@ import net.minecraft.text.TranslatableText;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
+import net.minecraft.util.math.Direction;
+import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.world.BlockView;
 import net.minecraft.world.WorldAccess;
 
@@ -39,10 +41,12 @@ public class DroppedShard {
 	}
 
 	public static boolean isDroppableOn(BlockState state, BlockView world, BlockPos pos) {
-		if (state.isSolidBlock(world, pos)) return true;
-		
 		Block block = state.getBlock();
-		return block instanceof SlabBlock || block instanceof StairsBlock;
+		if (block instanceof SlabBlock) return true;
+		if (block instanceof StairsBlock) return true;
+
+		VoxelShape collisionShape = state.getCollisionShape(world, pos);
+		return Block.isFaceFullSquare(collisionShape, Direction.UP);
 	}
 
 	private BlockState getBlockState() {
