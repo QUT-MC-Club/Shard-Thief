@@ -21,10 +21,8 @@ import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.Vec3i;
 import net.minecraft.util.registry.Registry;
 import net.minecraft.util.registry.RegistryKey;
-import net.minecraft.world.ChunkRegion;
-import net.minecraft.world.biome.source.BiomeAccess;
+import net.minecraft.world.StructureWorldAccess;
 import net.minecraft.world.chunk.Chunk;
-import net.minecraft.world.gen.GenerationStep.Carver;
 import net.minecraft.world.gen.StructureAccessor;
 import net.minecraft.world.gen.chunk.StructuresConfig;
 import xyz.nucleoid.plasmid.game.world.generator.GameChunkGenerator;
@@ -60,36 +58,31 @@ public final class ShardThiefChunkGenerator extends GameChunkGenerator {
 		return rules;
 	}
 
-	private void placeStructure(ChunkRegion region, BlockPos pos, BlockRotation rotation, Block terracotta, Block concrete, Block stainedGlass, Block wool, Block carpet) {
+	private void placeStructure(StructureWorldAccess world, Chunk chunk, BlockPos pos, BlockRotation rotation, Block terracotta, Block concrete, Block stainedGlass, Block wool, Block carpet) {
 		StructurePlacementData placementData = new StructurePlacementData();
 
 		placementData.setRotation(rotation);
 		placementData.addProcessor(new RuleStructureProcessor(this.getRules(terracotta, concrete, stainedGlass, wool, carpet)));
 
 
-		ChunkPos chunkPos = region.getCenterPos();
-		BlockBox chunkBox = new BlockBox(chunkPos.getStartX(), region.getBottomY(), chunkPos.getStartZ(), chunkPos.getEndX(), region.getTopY(), chunkPos.getEndZ());
+		ChunkPos chunkPos = chunk.getPos();
+		BlockBox chunkBox = new BlockBox(chunkPos.getStartX(), chunk.getBottomY(), chunkPos.getStartZ(), chunkPos.getEndX(), chunk.getTopY(), chunkPos.getEndZ());
 
 		if (!chunkBox.intersects(this.structure.calculateBoundingBox(placementData, pos))) return;
 		placementData.setBoundingBox(chunkBox);
 
-		this.structure.place(region, pos, pos, placementData, region.getRandom(), Block.NO_REDRAW);
+		this.structure.place(world, pos, pos, placementData, world.getRandom(), Block.NO_REDRAW);
 	}
 
 	@Override
-	public void generateFeatures(ChunkRegion region, StructureAccessor structures) {
+	public void generateFeatures(StructureWorldAccess world, Chunk chunk, StructureAccessor structures) {
 		Vec3i size = this.structure.getSize();
 		int x = size.getX() * 2 - 1;
 		int z = size.getZ() * 2 - 1;
 
-		this.placeStructure(region, ShardThiefMap.ORIGIN, BlockRotation.NONE, Blocks.LIME_TERRACOTTA, Blocks.LIME_CONCRETE, Blocks.LIME_STAINED_GLASS, Blocks.LIME_WOOL, Blocks.LIME_CARPET);
-		this.placeStructure(region, ShardThiefMap.ORIGIN.add(x, 0, 0), BlockRotation.CLOCKWISE_90, Blocks.LIGHT_BLUE_TERRACOTTA, Blocks.BLUE_CONCRETE, Blocks.BLUE_STAINED_GLASS, Blocks.BLUE_WOOL, Blocks.BLUE_CARPET);
-		this.placeStructure(region, ShardThiefMap.ORIGIN.add(x, 0, z), BlockRotation.CLOCKWISE_180, Blocks.RED_TERRACOTTA, Blocks.RED_CONCRETE, Blocks.RED_STAINED_GLASS, Blocks.RED_WOOL, Blocks.RED_CARPET);
-		this.placeStructure(region, ShardThiefMap.ORIGIN.add(0, 0, z), BlockRotation.COUNTERCLOCKWISE_90, Blocks.YELLOW_TERRACOTTA, Blocks.YELLOW_CONCRETE, Blocks.YELLOW_STAINED_GLASS, Blocks.YELLOW_WOOL, Blocks.YELLOW_CARPET);
-	}
-
-	@Override
-	public void carve(long seed, BiomeAccess access, Chunk chunk, Carver carver) {
-		return;
+		this.placeStructure(world, chunk, ShardThiefMap.ORIGIN, BlockRotation.NONE, Blocks.LIME_TERRACOTTA, Blocks.LIME_CONCRETE, Blocks.LIME_STAINED_GLASS, Blocks.LIME_WOOL, Blocks.LIME_CARPET);
+		this.placeStructure(world, chunk, ShardThiefMap.ORIGIN.add(x, 0, 0), BlockRotation.CLOCKWISE_90, Blocks.LIGHT_BLUE_TERRACOTTA, Blocks.BLUE_CONCRETE, Blocks.BLUE_STAINED_GLASS, Blocks.BLUE_WOOL, Blocks.BLUE_CARPET);
+		this.placeStructure(world, chunk, ShardThiefMap.ORIGIN.add(x, 0, z), BlockRotation.CLOCKWISE_180, Blocks.RED_TERRACOTTA, Blocks.RED_CONCRETE, Blocks.RED_STAINED_GLASS, Blocks.RED_WOOL, Blocks.RED_CARPET);
+		this.placeStructure(world, chunk, ShardThiefMap.ORIGIN.add(0, 0, z), BlockRotation.COUNTERCLOCKWISE_90, Blocks.YELLOW_TERRACOTTA, Blocks.YELLOW_CONCRETE, Blocks.YELLOW_STAINED_GLASS, Blocks.YELLOW_WOOL, Blocks.YELLOW_CARPET);
 	}
 }
