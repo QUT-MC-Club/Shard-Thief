@@ -1,5 +1,6 @@
 {
 	"type": "shardthief:shard_thief",
+	"icon": "minecraft:bone",
 	"map": {
 		"structure_id": "shardthief:mountain_fossil",
 		"biome_id": "minecraft:gravelly_mountains",

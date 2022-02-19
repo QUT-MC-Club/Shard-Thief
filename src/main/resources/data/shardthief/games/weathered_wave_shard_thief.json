@@ -1,5 +1,6 @@
 {
 	"type": "shardthief:shard_thief",
+	"icon": "minecraft:oxidized_copper",
 	"map": {
 		"structure_id": "shardthief:weathered_wave",
 		"biome_id": "minecraft:the_void"

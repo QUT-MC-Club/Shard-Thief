@@ -1,5 +1,6 @@
 {
 	"type": "shardthief:shard_thief",
+	"icon": "minecraft:oak_sapling",
 	"map": {
 		"structure_id": "shardthief:dense_forest",
 		"biome_id": "minecraft:forest",

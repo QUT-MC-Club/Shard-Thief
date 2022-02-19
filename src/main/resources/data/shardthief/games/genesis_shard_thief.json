@@ -1,5 +1,6 @@
 {
 	"type": "shardthief:shard_thief",
+	"icon": "minecraft:egg",
 	"map": {
 		"structure_id": "shardthief:genesis",
 		"biome_id": "minecraft:taiga",

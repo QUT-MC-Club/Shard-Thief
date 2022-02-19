@@ -1,5 +1,6 @@
 {
 	"type": "shardthief:shard_thief",
+	"icon": "minecraft:paper",
 	"map": {
 		"structure_id": "shardthief:school_supplies",
 		"biome_id": "minecraft:wooded_hills",

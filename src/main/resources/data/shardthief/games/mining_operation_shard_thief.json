@@ -1,5 +1,6 @@
 {
 	"type": "shardthief:shard_thief",
+	"icon": "minecraft:coal",
 	"map": {
 		"structure_id": "shardthief:mining_operation",
 		"biome_id": "minecraft:mountains"

@@ -1,5 +1,6 @@
 {
 	"type": "shardthief:shard_thief",
+	"icon": "minecraft:red_terracotta",
 	"map": {
 		"structure_id": "shardthief:block_fort",
 		"biome_id": "minecraft:the_void"

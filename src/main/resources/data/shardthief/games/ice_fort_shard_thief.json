@@ -1,5 +1,6 @@
 {
 	"type": "shardthief:shard_thief",
+	"icon": "minecraft:packed_ice",
 	"map": {
 		"structure_id": "shardthief:ice_fort",
 		"biome_id": "minecraft:ice_spikes",

@@ -1,5 +1,6 @@
 {
 	"type": "shardthief:shard_thief",
+	"icon": "minecraft:oak_stairs",
 	"map": {
 		"structure_id": "shardthief:modular_fortress",
 		"biome_id": "minecraft:the_void",

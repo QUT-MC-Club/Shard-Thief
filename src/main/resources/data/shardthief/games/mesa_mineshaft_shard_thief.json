@@ -1,5 +1,6 @@
 {
 	"type": "shardthief:shard_thief",
+	"icon": "minecraft:raw_gold",
 	"map": {
 		"structure_id": "shardthief:mesa_mineshaft",
 		"biome_id": "minecraft:badlands"

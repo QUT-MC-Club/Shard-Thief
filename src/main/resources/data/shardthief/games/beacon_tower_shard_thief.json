@@ -1,5 +1,6 @@
 {
 	"type": "shardthief:shard_thief",
+	"icon": "minecraft:beacon",
 	"map": {
 		"structure_id": "shardthief:beacon_tower",
 		"biome_id": "minecraft:plains",

@@ -1,5 +1,6 @@
 {
 	"type": "shardthief:shard_thief",
+	"icon": "minecraft:bookshelf",
 	"map": {
 		"structure_id": "shardthief:stronghold_library",
 		"biome_id": "minecraft:mountains"

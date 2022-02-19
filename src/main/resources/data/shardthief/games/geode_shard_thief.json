@@ -1,5 +1,6 @@
 {
 	"type": "shardthief:shard_thief",
+	"icon": "minecraft:amethyst_cluster",
 	"map": {
 		"structure_id": "shardthief:geode",
 		"biome_id": "minecraft:the_void"

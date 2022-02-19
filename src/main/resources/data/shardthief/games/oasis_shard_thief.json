@@ -1,5 +1,6 @@
 {
 	"type": "shardthief:shard_thief",
+	"icon": "minecraft:grass",
 	"map": {
 		"structure_id": "shardthief:oasis",
 		"biome_id": "minecraft:mushroom_fields",

@@ -1,5 +1,6 @@
 {
 	"type": "shardthief:shard_thief",
+	"icon": "minecraft:cake",
 	"map": {
 		"structure_id": "shardthief:birthday_cake",
 		"biome_id": "minecraft:the_void"
