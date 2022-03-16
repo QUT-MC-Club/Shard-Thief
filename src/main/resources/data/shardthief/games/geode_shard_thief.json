@@ -3,7 +3,7 @@
 	"icon": "minecraft:amethyst_cluster",
 	"map": {
 		"structure_id": "shardthief:geode",
-		"biome_id": "minecraft:the_void"
+		"biome": "minecraft:the_void"
 	},
 	"players": {
 		"min": 1,

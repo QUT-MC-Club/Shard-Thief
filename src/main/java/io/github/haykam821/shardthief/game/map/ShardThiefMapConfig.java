@@ -7,12 +7,14 @@ import net.minecraft.block.Blocks;
 import net.minecraft.structure.rule.BlockMatchRuleTest;
 import net.minecraft.structure.rule.RuleTest;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.registry.RegistryEntry;
+import net.minecraft.world.biome.Biome;
 
 public class ShardThiefMapConfig {
 	public static final Codec<ShardThiefMapConfig> CODEC = RecordCodecBuilder.create(instance -> {
 		return instance.group(
 			Identifier.CODEC.fieldOf("structure_id").forGetter(ShardThiefMapConfig::getStructureId),
-			Identifier.CODEC.fieldOf("biome_id").forGetter(ShardThiefMapConfig::getBiomeId),
+			Biome.REGISTRY_CODEC.fieldOf("biome").forGetter(ShardThiefMapConfig::getBiome),
 			RuleTest.TYPE_CODEC.optionalFieldOf("terracotta_rule", new BlockMatchRuleTest(Blocks.WHITE_TERRACOTTA)).forGetter(ShardThiefMapConfig::getTerracottaRule),
 			RuleTest.TYPE_CODEC.optionalFieldOf("concrete_rule", new BlockMatchRuleTest(Blocks.WHITE_CONCRETE)).forGetter(ShardThiefMapConfig::getConcreteRule),
 			RuleTest.TYPE_CODEC.optionalFieldOf("stained_glass_rule", new BlockMatchRuleTest(Blocks.WHITE_STAINED_GLASS)).forGetter(ShardThiefMapConfig::getStainedGlassRule),
@@ -23,7 +25,7 @@ public class ShardThiefMapConfig {
 	});
 
 	private final Identifier structureId;
-	private final Identifier biomeId;
+	private final RegistryEntry<Biome> biome;
 	private final RuleTest terracottaRule;
 	private final RuleTest concreteRule;
 	private final RuleTest stainedGlassRule;
@@ -31,9 +33,9 @@ public class ShardThiefMapConfig {
 	private final RuleTest carpetRule;
 	private final int spawnYOffset;
 
-	public ShardThiefMapConfig(Identifier structureId, Identifier biomeId, RuleTest terracottaRule, RuleTest concreteRule, RuleTest stainedGlassRule, RuleTest woolRule, RuleTest carpetRule, int spawnYOffset) {
+	public ShardThiefMapConfig(Identifier structureId, RegistryEntry<Biome> biome, RuleTest terracottaRule, RuleTest concreteRule, RuleTest stainedGlassRule, RuleTest woolRule, RuleTest carpetRule, int spawnYOffset) {
 		this.structureId = structureId;
-		this.biomeId = biomeId;
+		this.biome = biome;
 		this.terracottaRule = terracottaRule;
 		this.concreteRule = concreteRule;
 		this.stainedGlassRule = stainedGlassRule;
@@ -46,8 +48,8 @@ public class ShardThiefMapConfig {
 		return this.structureId;
 	}
 
-	public Identifier getBiomeId() {
-		return this.biomeId;
+	public RegistryEntry<Biome> getBiome() {
+		return this.biome;
 	}
 
 	public RuleTest getTerracottaRule() {

@@ -3,7 +3,7 @@
 	"icon": "minecraft:red_terracotta",
 	"map": {
 		"structure_id": "shardthief:block_fort",
-		"biome_id": "minecraft:the_void"
+		"biome": "minecraft:the_void"
 	},
 	"players": {
 		"min": 1,

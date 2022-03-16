@@ -3,7 +3,7 @@
 	"icon": "minecraft:egg",
 	"map": {
 		"structure_id": "shardthief:genesis",
-		"biome_id": "minecraft:taiga",
+		"biome": "minecraft:taiga",
 		"spawn_y_offset": 2
 	},
 	"players": {

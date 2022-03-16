@@ -3,7 +3,7 @@
 	"icon": "minecraft:mossy_cobblestone",
 	"map": {
 		"structure_id": "shardthief:jungle_temple",
-		"biome_id": "minecraft:jungle",
+		"biome": "minecraft:jungle",
 		"spawn_y_offset": 2
 	},
 	"players": {

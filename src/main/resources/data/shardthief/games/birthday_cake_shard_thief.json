@@ -3,7 +3,7 @@
 	"icon": "minecraft:cake",
 	"map": {
 		"structure_id": "shardthief:birthday_cake",
-		"biome_id": "minecraft:the_void"
+		"biome": "minecraft:the_void"
 	},
 	"players": {
 		"min": 1,

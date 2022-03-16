@@ -3,7 +3,7 @@
 	"icon": "minecraft:bookshelf",
 	"map": {
 		"structure_id": "shardthief:stronghold_library",
-		"biome_id": "minecraft:mountains"
+		"biome": "minecraft:windswept_hills"
 	},
 	"players": {
 		"min": 1,

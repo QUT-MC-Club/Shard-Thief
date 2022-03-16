@@ -3,7 +3,7 @@
 	"icon": "minecraft:beacon",
 	"map": {
 		"structure_id": "shardthief:beacon_tower",
-		"biome_id": "minecraft:plains",
+		"biome": "minecraft:plains",
 		"spawn_y_offset": 2
 	},
 	"players": {

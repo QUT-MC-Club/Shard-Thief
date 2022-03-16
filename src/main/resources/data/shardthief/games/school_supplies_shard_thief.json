@@ -3,7 +3,7 @@
 	"icon": "minecraft:paper",
 	"map": {
 		"structure_id": "shardthief:school_supplies",
-		"biome_id": "minecraft:wooded_hills",
+		"biome": "minecraft:forest",
 		"concrete_rule": {
 			"predicate_type": "minecraft:block_match",
 			"block": "minecraft:cyan_concrete"

@@ -3,7 +3,7 @@
 	"icon": "minecraft:bone",
 	"map": {
 		"structure_id": "shardthief:mountain_fossil",
-		"biome_id": "minecraft:gravelly_mountains",
+		"biome": "minecraft:windswept_gravelly_hills",
 		"spawn_y_offset": 2
 	},
 	"players": {

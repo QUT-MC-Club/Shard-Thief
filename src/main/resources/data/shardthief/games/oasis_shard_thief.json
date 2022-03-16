@@ -3,7 +3,7 @@
 	"icon": "minecraft:grass",
 	"map": {
 		"structure_id": "shardthief:oasis",
-		"biome_id": "minecraft:mushroom_fields",
+		"biome": "minecraft:mushroom_fields",
 		"spawn_y_offset": 2
 	},
 	"players": {

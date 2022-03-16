@@ -3,7 +3,7 @@
 	"icon": "minecraft:packed_ice",
 	"map": {
 		"structure_id": "shardthief:ice_fort",
-		"biome_id": "minecraft:ice_spikes",
+		"biome": "minecraft:ice_spikes",
 		"spawn_y_offset": 3
 	},
 	"players": {

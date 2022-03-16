@@ -3,7 +3,7 @@
 	"icon": "minecraft:oak_sapling",
 	"map": {
 		"structure_id": "shardthief:dense_forest",
-		"biome_id": "minecraft:forest",
+		"biome": "minecraft:forest",
 		"spawn_y_offset": 5
 	},
 	"players": {
