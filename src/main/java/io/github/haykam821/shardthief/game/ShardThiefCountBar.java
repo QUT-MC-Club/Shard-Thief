@@ -13,7 +13,7 @@ public class ShardThiefCountBar {
 	private final BossBarWidget bar;
 
 	public ShardThiefCountBar(Text title, GlobalWidgets widgets) {
-		this.bar = widgets.addBossBar(title.shallowCopy().formatted(TITLE_COLOR), BossBar.Color.BLUE, BossBar.Style.PROGRESS);
+		this.bar = widgets.addBossBar(title.copy().formatted(TITLE_COLOR), BossBar.Color.BLUE, BossBar.Style.PROGRESS);
 	}
 
 	public void tick(ShardThiefActivePhase phase) {
