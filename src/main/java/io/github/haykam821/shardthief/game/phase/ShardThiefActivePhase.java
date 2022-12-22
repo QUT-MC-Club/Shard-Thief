@@ -247,7 +247,7 @@ public class ShardThiefActivePhase {
 			Text countText = Text.literal(countString).formatted(this.getCountTitleColor()).formatted(Formatting.BOLD);
 			this.gameSpace.getPlayers().showTitle(countText, 70);
 
-			this.gameSpace.getPlayers().playSound(SoundEvents.BLOCK_NOTE_BLOCK_BIT, SoundCategory.PLAYERS, 1, 1.5f);
+			this.gameSpace.getPlayers().playSound(SoundEvents.BLOCK_NOTE_BLOCK_BIT.value(), SoundCategory.PLAYERS, 1, 1.5f);
 		}
 
 		this.resetTicksUntilCount();

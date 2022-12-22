@@ -2,7 +2,6 @@ package io.github.haykam821.shardthief.game.map;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
@@ -18,7 +17,6 @@ import net.minecraft.util.math.BlockBox;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.Vec3i;
-import net.minecraft.util.registry.Registry;
 import net.minecraft.world.StructureWorldAccess;
 import net.minecraft.world.biome.source.FixedBiomeSource;
 import net.minecraft.world.chunk.Chunk;
@@ -30,7 +28,7 @@ public final class ShardThiefChunkGenerator extends GameChunkGenerator {
 	private final StructureTemplate template;
 
 	public ShardThiefChunkGenerator(ShardThiefMapConfig mapConfig, StructureTemplate template, MinecraftServer server) {
-		super(server.getRegistryManager().get(Registry.STRUCTURE_SET_KEY), Optional.empty(), new FixedBiomeSource(mapConfig.getBiome()));
+		super(new FixedBiomeSource(mapConfig.getBiome()));
 
 		this.mapConfig = mapConfig;
 		this.template = template;
