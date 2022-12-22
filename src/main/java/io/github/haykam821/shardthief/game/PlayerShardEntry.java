@@ -3,7 +3,6 @@ package io.github.haykam821.shardthief.game;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
-import net.minecraft.text.TranslatableText;
 import net.minecraft.util.Formatting;
 
 public class PlayerShardEntry implements Comparable<PlayerShardEntry> {
@@ -38,12 +37,12 @@ public class PlayerShardEntry implements Comparable<PlayerShardEntry> {
 	}
 
 	public Text getWinMessage() {
-		return new TranslatableText("text.shardthief.win", this.getPlayer().getDisplayName()).formatted(Formatting.GOLD);
+		return Text.translatable("text.shardthief.win", this.getPlayer().getDisplayName()).formatted(Formatting.GOLD);
 	}
 
 	public Text getStealMessage() {
-		MutableText playerName = this.getPlayer().getDisplayName().shallowCopy().formatted(Formatting.AQUA);
-		return new TranslatableText("text.shardthief.shard_stolen", playerName).formatted(Formatting.WHITE);
+		MutableText playerName = this.getPlayer().getDisplayName().copy().formatted(Formatting.AQUA);
+		return Text.translatable("text.shardthief.shard_stolen", playerName).formatted(Formatting.WHITE);
 	}
 
 	public void setInvulnerability(int invulnerability) {

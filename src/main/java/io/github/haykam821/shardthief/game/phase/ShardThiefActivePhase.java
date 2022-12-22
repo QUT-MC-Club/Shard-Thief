@@ -22,7 +22,6 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
-import net.minecraft.text.LiteralText;
 import net.minecraft.text.Text;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Formatting;
@@ -245,7 +244,7 @@ public class ShardThiefActivePhase {
 			return;
 		} else if (this.shardHolder.getCounts() <= 5) {
 			String countString = Integer.toString(this.shardHolder.getCounts());
-			Text countText = new LiteralText(countString).formatted(this.getCountTitleColor()).formatted(Formatting.BOLD);
+			Text countText = Text.literal(countString).formatted(this.getCountTitleColor()).formatted(Formatting.BOLD);
 			this.gameSpace.getPlayers().showTitle(countText, 70);
 
 			this.gameSpace.getPlayers().playSound(SoundEvents.BLOCK_NOTE_BLOCK_BIT, SoundCategory.PLAYERS, 1, 1.5f);

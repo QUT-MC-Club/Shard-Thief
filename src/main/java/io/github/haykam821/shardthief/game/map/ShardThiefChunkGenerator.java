@@ -7,8 +7,8 @@ import java.util.Optional;
 import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.structure.Structure;
 import net.minecraft.structure.StructurePlacementData;
+import net.minecraft.structure.StructureTemplate;
 import net.minecraft.structure.processor.RuleStructureProcessor;
 import net.minecraft.structure.processor.StructureProcessorRule;
 import net.minecraft.structure.rule.AlwaysTrueRuleTest;
@@ -27,13 +27,13 @@ import xyz.nucleoid.plasmid.game.world.generator.GameChunkGenerator;
 
 public final class ShardThiefChunkGenerator extends GameChunkGenerator {
 	private final ShardThiefMapConfig mapConfig;
-	private final Structure structure;
+	private final StructureTemplate template;
 
-	public ShardThiefChunkGenerator(ShardThiefMapConfig mapConfig, Structure structure, MinecraftServer server) {
+	public ShardThiefChunkGenerator(ShardThiefMapConfig mapConfig, StructureTemplate template, MinecraftServer server) {
 		super(server.getRegistryManager().get(Registry.STRUCTURE_SET_KEY), Optional.empty(), new FixedBiomeSource(mapConfig.getBiome()));
 
 		this.mapConfig = mapConfig;
-		this.structure = structure;
+		this.template = template;
 	}
 
 	private StructureProcessorRule getReplaceRule(RuleTest match, Block output) {
@@ -66,15 +66,15 @@ public final class ShardThiefChunkGenerator extends GameChunkGenerator {
 		ChunkPos chunkPos = chunk.getPos();
 		BlockBox chunkBox = new BlockBox(chunkPos.getStartX(), chunk.getBottomY(), chunkPos.getStartZ(), chunkPos.getEndX(), chunk.getTopY(), chunkPos.getEndZ());
 
-		if (!chunkBox.intersects(this.structure.calculateBoundingBox(placementData, pos))) return;
+		if (!chunkBox.intersects(this.template.calculateBoundingBox(placementData, pos))) return;
 		placementData.setBoundingBox(chunkBox);
 
-		this.structure.place(world, pos, pos, placementData, world.getRandom(), Block.NO_REDRAW);
+		this.template.place(world, pos, pos, placementData, world.getRandom(), Block.NO_REDRAW);
 	}
 
 	@Override
 	public void generateFeatures(StructureWorldAccess world, Chunk chunk, StructureAccessor structures) {
-		Vec3i size = this.structure.getSize();
+		Vec3i size = this.template.getSize();
 		int x = size.getX() * 2 - 1;
 		int z = size.getZ() * 2 - 1;
 
