@@ -10,7 +10,6 @@ import net.minecraft.block.StairsBlock;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.state.property.Properties;
 import net.minecraft.text.Text;
-import net.minecraft.text.TranslatableText;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
@@ -75,7 +74,7 @@ public class DroppedShard {
 	}
 
 	public Text getResetMessage() {
-		return new TranslatableText("text.shardthief.dropped_shard_reset").formatted(Formatting.RED);
+		return Text.translatable("text.shardthief.dropped_shard_reset").formatted(Formatting.RED);
 	}
 
 	public boolean canPlayerPickUp(PlayerEntity player) {
