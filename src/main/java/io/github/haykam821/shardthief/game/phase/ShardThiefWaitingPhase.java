@@ -63,7 +63,7 @@ public class ShardThiefWaitingPhase {
 
 	private void enable() {
 		// Spawn guide text
-		Vec3d center = Vec3d.of(this.map.getCenterSpawnPos()).add(0, 1.8, 0);
+		Vec3d center = Vec3d.of(this.map.getCenterSpawnPos()).add(0, 2.8, 0);
 		this.guideText = ShardThiefGuideText.spawn(this.world, center);
 	}
 

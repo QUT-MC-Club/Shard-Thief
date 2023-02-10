@@ -277,7 +277,7 @@ public class ShardThiefActivePhase {
 		}
 
 		if (this.droppedShard != null) {
-			this.droppedShard.tick();
+			this.droppedShard.tick(this.world);
 		}
 
 		if (this.ticksUntilKitRestock <= 0) {

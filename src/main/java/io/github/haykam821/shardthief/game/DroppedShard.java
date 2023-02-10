@@ -8,12 +8,15 @@ import net.minecraft.block.HorizontalFacingBlock;
 import net.minecraft.block.SlabBlock;
 import net.minecraft.block.StairsBlock;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.particle.ParticleTypes;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.state.property.Properties;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Direction;
+import net.minecraft.util.math.random.Random;
 import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.world.BlockView;
 import net.minecraft.world.WorldAccess;
@@ -22,6 +25,12 @@ public class DroppedShard {
 	private static final BlockState FULL_DROP_STATE = Blocks.PRISMARINE.getDefaultState();
 	private static final BlockState SLAB_DROP_STATE = Blocks.PRISMARINE_SLAB.getDefaultState();
 	private static final BlockState STAIRS_DROP_STATE = Blocks.PRISMARINE_STAIRS.getDefaultState();
+
+	private static final int TICKS_PER_PARTICLE = 2;
+	private static final double PARTICLE_Y_OFFSET = 1.1;
+	private static final double PARTICLE_MIN_DIAMETER = 0.2;
+	private static final double PARTICLE_DIAMETER_VARIANCE = 0.05;
+	private static final double PARTICLE_SPEED = 0.12;
 
 	private final ShardThiefActivePhase phase;
 	private final BlockPos pos;
@@ -77,12 +86,32 @@ public class DroppedShard {
 		return Text.translatable("text.shardthief.dropped_shard_reset").formatted(Formatting.RED);
 	}
 
-	public boolean canPlayerPickUp(PlayerEntity player) {
-		return this.ticks > this.invulnerability && this.pickUpBox.intersects(player.getBoundingBox());
+	private boolean hasInvulnerability() {
+		return this.ticks <= this.invulnerability;
 	}
 
-	public void tick() {
+	public boolean canPlayerPickUp(PlayerEntity player) {
+		return !this.hasInvulnerability() && this.pickUpBox.intersects(player.getBoundingBox());
+	}
+
+	private void spawnParticles(ServerWorld world) {
+		Random random = world.getRandom();
+		double angle = random.nextDouble() * Math.PI * 2;
+		double diameter = random.nextDouble() * PARTICLE_DIAMETER_VARIANCE + PARTICLE_MIN_DIAMETER;
+		
+		double x = this.pos.getX() + 0.5 + (Math.sin(angle) * diameter);
+		double y = this.pos.getY() + PARTICLE_Y_OFFSET;
+		double z = this.pos.getZ() + 0.5 + (Math.cos(angle) * diameter);
+
+		world.spawnParticles(ParticleTypes.SOUL_FIRE_FLAME, x, y, z, 0, 0, 0.8, 0, PARTICLE_SPEED);
+	}
+
+	public void tick(ServerWorld world) {
 		this.ticks += 1;
 		this.phase.attemptResetShard(this.ticks, this.pos);
+
+		if (!this.hasInvulnerability() && this.ticks % TICKS_PER_PARTICLE == 0) {
+			this.spawnParticles(world);
+		}
 	}
 }
