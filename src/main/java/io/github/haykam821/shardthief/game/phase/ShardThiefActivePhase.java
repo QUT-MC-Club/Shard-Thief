@@ -6,12 +6,15 @@ import java.util.stream.Collectors;
 import com.google.common.collect.Sets;
 
 import eu.pb4.holograms.api.holograms.AbstractHologram;
-import io.github.haykam821.shardthief.game.DroppedShard;
+import io.github.haykam821.shardthief.Main;
 import io.github.haykam821.shardthief.game.PlayerShardEntry;
 import io.github.haykam821.shardthief.game.ShardInventoryManager;
 import io.github.haykam821.shardthief.game.ShardThiefConfig;
 import io.github.haykam821.shardthief.game.ShardThiefCountBar;
 import io.github.haykam821.shardthief.game.map.ShardThiefMap;
+import io.github.haykam821.shardthief.game.shard.BlockDroppedShard;
+import io.github.haykam821.shardthief.game.shard.DroppedShard;
+import io.github.haykam821.shardthief.game.shard.EntityDroppedShard;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.effect.StatusEffectInstance;
@@ -69,13 +72,14 @@ public class ShardThiefActivePhase {
 
 		this.countBar = new ShardThiefCountBar(gameSpace.getMetadata().sourceConfig().name(), widgets);
 
-		this.placeShard(this.map.getCenterSpawnPos().down());
+		this.placeEntityShard(this.map.getInitialShardPos());
 
 		this.guideText = guideText;
 		this.guideTicks = this.config.getGuideTicks();
 	}
 
 	public static void setRules(GameActivity activity, boolean pvp) {
+		activity.deny(Main.ARROW_BOUNCE);
 		activity.deny(GameRuleType.CRAFTING);
 		activity.deny(GameRuleType.FALL_DAMAGE);
 		activity.deny(GameRuleType.HUNGER);
@@ -190,13 +194,13 @@ public class ShardThiefActivePhase {
 		}
 	}
 
-	public void attemptResetShard(int ticks, BlockPos pos) {
+	public void attemptResetShard(int ticks, Vec3d pos) {
 		if (ticks < this.config.getDroppedShardResetTicks()) return;
-		if (pos.equals(this.map.getCenterSpawnPos().down())) return;
+		if (pos.equals(this.map.getInitialShardPos())) return;
 
 		this.droppedShard.reset(this.world);
 
-		this.placeShard(this.map.getCenterSpawnPos().down());
+		this.placeEntityShard(this.map.getInitialShardPos());
 		this.playDropSound(pos);
 
 		Text message = this.droppedShard.getResetMessage();
@@ -204,12 +208,17 @@ public class ShardThiefActivePhase {
 	}
 
 	private void placeShard(BlockPos pos) {
-		this.droppedShard = new DroppedShard(this, pos, this.world.getBlockState(pos), this.config.getShardInvulnerability());
+		this.droppedShard = new BlockDroppedShard(this, pos, this.world.getBlockState(pos), this.config.getShardInvulnerability());
 		this.droppedShard.place(this.world);
 	}
 
-	private void playDropSound(BlockPos pos) {
-		world.playSound(null, pos, SoundEvents.ENTITY_SPLASH_POTION_BREAK, SoundCategory.PLAYERS, 1, 1);
+	private void placeEntityShard(Vec3d pos) {
+		this.droppedShard = new EntityDroppedShard(this, this.world, pos, this.config.getShardInvulnerability());
+		this.droppedShard.place(this.world);
+	}
+
+	private void playDropSound(Vec3d pos) {
+		world.playSound(null, pos.getX(), pos.getY(), pos.getZ(), SoundEvents.ENTITY_SPLASH_POTION_BREAK, SoundCategory.PLAYERS, 1, 1);
 	}
 
 	private void dropShard() {
@@ -218,7 +227,7 @@ public class ShardThiefActivePhase {
 
 		this.clearShard();
 
-		this.playDropSound(pos);
+		this.playDropSound(Vec3d.ofCenter(pos));
 	}
 
 	private Formatting getCountTitleColor() {
@@ -309,7 +318,7 @@ public class ShardThiefActivePhase {
 	}
 
 	private PlayerOfferResult offerPlayer(PlayerOffer offer) {
-		return offer.accept(this.world, Vec3d.of(this.map.getCenterSpawnPos())).and(() -> {
+		return offer.accept(this.world, this.map.getCenterSpawnPos()).and(() -> {
 			this.setSpectator(offer.player());
 		});
 	}
@@ -370,7 +379,7 @@ public class ShardThiefActivePhase {
 	public static void spawn(ServerWorld world, ShardThiefMap map, ServerPlayerEntity player, int index) {
 		Direction direction = Direction.fromHorizontal(index);
 		int distance = (int) Math.min(index / 4f + 4, 8);
-		BlockPos pos = map.getCenterSpawnPos().offset(direction.getOpposite(), distance);
+		Vec3d pos = map.getCenterSpawnPos().withBias(direction.getOpposite(), distance);
 
 		player.teleport(world, pos.getX(), pos.getY(), pos.getZ(), direction.asRotation(), 0);
 	}

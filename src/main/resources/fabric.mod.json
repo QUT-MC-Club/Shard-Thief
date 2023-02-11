@@ -16,6 +16,9 @@
 			"io.github.haykam821.shardthief.Main"
 		]
 	},
+	"mixins": [
+		"shardthief.mixin.json"
+	],
 	"license": "MIT",
 	"icon": "assets/shardthief/icon.png",
 	"depends": {

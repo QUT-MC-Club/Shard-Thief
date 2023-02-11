@@ -1,0 +1,12 @@
+{
+	"required": true,
+	"package": "io.github.haykam821.shardthief.mixin",
+	"compatibilityLevel": "JAVA_17",
+	"mixins": [
+		"FallingBlockEntityAccessor",
+		"PersistentProjectileEntityMixin"
+	],
+	"injectors": {
+		"defaultRequire": 1
+	}
+}

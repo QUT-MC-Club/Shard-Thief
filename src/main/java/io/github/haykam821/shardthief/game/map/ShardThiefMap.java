@@ -4,6 +4,7 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.structure.StructureTemplate;
 import net.minecraft.util.math.BlockBox;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.math.Vec3i;
 import net.minecraft.world.gen.chunk.ChunkGenerator;
 
@@ -12,7 +13,8 @@ public final class ShardThiefMap {
 
 	private final ShardThiefMapConfig mapConfig;
 	private final StructureTemplate template;
-	private final BlockPos centerSpawnPos;
+	private final Vec3d centerSpawnPos;
+	private final Vec3d initialShardPos;
 	private final BlockBox box;
 
 	public ShardThiefMap(ShardThiefMapConfig mapConfig, StructureTemplate template) {
@@ -20,7 +22,8 @@ public final class ShardThiefMap {
 		this.template = template;
 
 		Vec3i size = this.template.getSize();
-		this.centerSpawnPos = ORIGIN.add(size.getX(), this.mapConfig.getSpawnYOffset(), size.getZ());
+		this.centerSpawnPos = new Vec3d(size.getX(), 64 + this.mapConfig.getSpawnYOffset(), size.getZ());
+		this.initialShardPos = this.centerSpawnPos.subtract(0, 1, 0);
 
 		this.box = new BlockBox(ORIGIN.getX() + 1, ORIGIN.getY(), ORIGIN.getZ() + 1, ORIGIN.getX() + size.getX() * 2, ORIGIN.getY() + size.getY(), ORIGIN.getZ() + size.getZ() * 2);
 	}
@@ -37,8 +40,12 @@ public final class ShardThiefMap {
 		return this.template;
 	}
 
-	public BlockPos getCenterSpawnPos() {
+	public Vec3d getCenterSpawnPos() {
 		return this.centerSpawnPos;
+	}
+
+	public Vec3d getInitialShardPos() {
+		return this.initialShardPos;
 	}
 
 	public BlockBox getBox() {
