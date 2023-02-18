@@ -58,6 +58,7 @@ public class ShardThiefActivePhase {
 	private int guideTicks;
 
 	private PlayerShardEntry shardHolder;
+	private int ticksUntilClose = -1;
 	private int ticksUntilCount;
 	private int ticksUntilKitRestock;
 	private DroppedShard droppedShard;
@@ -251,7 +252,7 @@ public class ShardThiefActivePhase {
 
 			this.gameSpace.getPlayers().playSound(SoundEvents.ENTITY_FIREWORK_ROCKET_BLAST, SoundCategory.PLAYERS, 1, 1);
 
-			this.gameSpace.close(GameCloseReason.FINISHED);
+			this.ticksUntilClose = this.config.getTicksUntilClose().get(this.world.getRandom());
 			return;
 		} else if (this.shardHolder.getCounts() <= 5) {
 			String countString = Integer.toString(this.shardHolder.getCounts());
@@ -278,6 +279,15 @@ public class ShardThiefActivePhase {
 	}
 
 	private void tick() {
+		// Decrease ticks until game end to zero
+		if (this.isGameEnding()) {
+			if (this.ticksUntilClose == 0) {
+				this.gameSpace.close(GameCloseReason.FINISHED);
+			}
+
+			this.ticksUntilClose -= 1;
+		}
+
 		this.countBar.tick(this);
 
 		// Remove guide text after guide ticks reach zero
@@ -291,16 +301,18 @@ public class ShardThiefActivePhase {
 			this.droppedShard.tick(this.world);
 		}
 
-		if (this.ticksUntilKitRestock <= 0) {
-			this.restockKits();
-		}
-		this.ticksUntilKitRestock -= 1;
-	
-		if (this.shardHolder != null) {
-			if (this.ticksUntilCount <= 0) {
-				this.tickCounts();
+		if (!this.isGameEnding()) {
+			if (this.ticksUntilKitRestock <= 0) {
+				this.restockKits();
 			}
-			this.ticksUntilCount -= 1;
+			this.ticksUntilKitRestock -= 1;
+		
+			if (this.shardHolder != null) {
+				if (this.ticksUntilCount <= 0) {
+					this.tickCounts();
+				}
+				this.ticksUntilCount -= 1;
+			}
 		}
 
 		for (PlayerShardEntry entry : this.players) {
@@ -309,10 +321,14 @@ public class ShardThiefActivePhase {
 			ServerPlayerEntity player = entry.getPlayer();
 			ShardThiefActivePhase.respawnIfOutOfBounds(player, this.map, this.world);
 
-			if (!entry.equals(this.shardHolder) && this.canPlayerPickUpDroppedShard(player)) {
+			if (!this.isGameEnding() && !entry.equals(this.shardHolder) && this.canPlayerPickUpDroppedShard(player)) {
 				this.pickUpShard(entry);
 			}
 		}
+	}
+
+	private boolean isGameEnding() {
+		return this.ticksUntilClose >= 0;
 	}
 
 	private void setSpectator(ServerPlayerEntity player) {
@@ -327,7 +343,7 @@ public class ShardThiefActivePhase {
 
 	private void removePlayer(ServerPlayerEntity player) {
 		// Drop shard when player is removed
-		if (this.shardHolder != null && player.equals(this.shardHolder.getPlayer())) {
+		if (!this.isGameEnding() && this.shardHolder != null && player.equals(this.shardHolder.getPlayer())) {
 			this.dropShard();
 		}
 
@@ -342,6 +358,8 @@ public class ShardThiefActivePhase {
 	}
 
 	private void tryTransferShard(ServerPlayerEntity damagedPlayer, DamageSource source) {
+		if (this.isGameEnding()) return;
+
 		if (!(source.getAttacker() instanceof ServerPlayerEntity)) return;
 		ServerPlayerEntity attacker = (ServerPlayerEntity) source.getAttacker();
 
