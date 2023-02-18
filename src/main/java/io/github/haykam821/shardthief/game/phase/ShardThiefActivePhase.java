@@ -6,20 +6,22 @@ import java.util.stream.Collectors;
 import com.google.common.collect.Sets;
 
 import eu.pb4.holograms.api.holograms.AbstractHologram;
-import io.github.haykam821.shardthief.Main;
 import io.github.haykam821.shardthief.game.PlayerShardEntry;
 import io.github.haykam821.shardthief.game.ShardInventoryManager;
 import io.github.haykam821.shardthief.game.ShardThiefConfig;
 import io.github.haykam821.shardthief.game.ShardThiefCountBar;
+import io.github.haykam821.shardthief.game.event.AllowProjectileHitEvent;
 import io.github.haykam821.shardthief.game.map.ShardThiefMap;
 import io.github.haykam821.shardthief.game.shard.BlockDroppedShard;
 import io.github.haykam821.shardthief.game.shard.DroppedShard;
 import io.github.haykam821.shardthief.game.shard.EntityDroppedShard;
 import net.minecraft.block.BlockState;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.effect.StatusEffects;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.projectile.PersistentProjectileEntity;
 import net.minecraft.entity.projectile.ProjectileEntity;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
@@ -79,7 +81,6 @@ public class ShardThiefActivePhase {
 	}
 
 	public static void setRules(GameActivity activity, boolean pvp) {
-		activity.deny(Main.ARROW_BOUNCE);
 		activity.deny(GameRuleType.CRAFTING);
 		activity.deny(GameRuleType.FALL_DAMAGE);
 		activity.deny(GameRuleType.HUNGER);
@@ -110,6 +111,7 @@ public class ShardThiefActivePhase {
 			activity.listen(GameActivityEvents.ENABLE, active::enable);
 			activity.listen(GameActivityEvents.TICK, active::tick);
 			activity.listen(GamePlayerEvents.OFFER, active::offerPlayer);
+			activity.listen(AllowProjectileHitEvent.EVENT, active::allowProjectileHit);
 			activity.listen(PlayerDamageEvent.EVENT, active::onPlayerDamage);
 			activity.listen(PlayerDeathEvent.EVENT, active::onPlayerDeath);
 			activity.listen(GamePlayerEvents.REMOVE, active::removePlayer);
@@ -364,6 +366,16 @@ public class ShardThiefActivePhase {
 				return;
 			}
 		}
+	}
+
+	private ActionResult allowProjectileHit(Entity entity, PersistentProjectileEntity projectile) {
+		if (this.shardHolder != null) {
+			if (entity == this.shardHolder.getPlayer()) {
+				return ActionResult.SUCCESS;
+			}
+		}
+
+		return ActionResult.FAIL;
 	}
 
 	private ActionResult onPlayerDamage(ServerPlayerEntity damagedPlayer, DamageSource source, float damage) {
