@@ -1,23 +1,24 @@
 package io.github.haykam821.shardthief.game;
 
+import io.github.haykam821.shardthief.game.phase.ShardThiefActivePhase;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 
 public class PlayerShardEntry implements Comparable<PlayerShardEntry> {
+	private final ShardThiefActivePhase phase;
 	private final ServerPlayerEntity player;
+
 	private int counts;
 	private int invulnerability;
 
-	public PlayerShardEntry(ServerPlayerEntity player, int counts, int invulnerability) {
+	public PlayerShardEntry(ShardThiefActivePhase phase, ServerPlayerEntity player) {
+		this.phase = phase;
 		this.player = player;
-		this.counts = counts;
-		this.invulnerability = invulnerability;
-	}
 
-	public PlayerShardEntry(ServerPlayerEntity player, int invulnerability) {
-		this(player, 20, invulnerability);
+		this.counts = phase.getConfig().getStartingCounts();
+		this.invulnerability = phase.getConfig().getShardInvulnerability();
 	}
 
 	public ServerPlayerEntity getPlayer() {
@@ -37,7 +38,8 @@ public class PlayerShardEntry implements Comparable<PlayerShardEntry> {
 	}
 
 	public Text getWinMessage() {
-		return Text.translatable("text.shardthief.win", this.getPlayer().getDisplayName()).formatted(Formatting.GOLD);
+		String key = this.phase.hasShardDropped() ? "text.shardthief.win" : "text.shardthief.win.perfect";
+		return Text.translatable(key, this.getPlayer().getDisplayName()).formatted(Formatting.GOLD);
 	}
 
 	public Text getStealMessage() {

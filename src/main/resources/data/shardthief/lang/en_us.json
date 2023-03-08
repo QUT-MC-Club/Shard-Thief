@@ -25,5 +25,6 @@
 	"text.shardthief.guide.pick_up_shard": "Pick up dropped shards by running over them.",
 	"text.shardthief.guide.steal_shard": "Punch other players to steal the shard from them.",
 	"text.shardthief.shard_stolen": "%s has stolen the shard!",
-	"text.shardthief.win": "%s has won the game!"
+	"text.shardthief.win": "%s has won the game!",
+	"text.shardthief.win.perfect": "%s has won the game perfectly!"
 }

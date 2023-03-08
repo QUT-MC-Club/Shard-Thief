@@ -62,6 +62,7 @@ public class ShardThiefActivePhase {
 	private int ticksUntilCount;
 	private int ticksUntilKitRestock;
 	private DroppedShard droppedShard;
+	private boolean shardDropped;
 
 	public ShardThiefActivePhase(GameSpace gameSpace, ServerWorld world, ShardThiefMap map, ShardThiefConfig config, Set<ServerPlayerEntity> players, GlobalWidgets widgets, AbstractHologram guideText) {
 		this.world = world;
@@ -70,7 +71,7 @@ public class ShardThiefActivePhase {
 		this.config = config;
 
 		this.players = players.stream().map(player -> {
-			return new PlayerShardEntry(player, this.config.getStartingCounts(), this.config.getShardInvulnerability());
+			return new PlayerShardEntry(this, player);
 		}).collect(Collectors.toSet());
 
 		this.countBar = new ShardThiefCountBar(gameSpace.getMetadata().sourceConfig().name(), widgets);
@@ -228,6 +229,7 @@ public class ShardThiefActivePhase {
 		BlockPos pos = this.findDropPos(this.shardHolder.getPlayer().getBlockPos());
 		this.placeShard(pos);
 
+		this.shardDropped = true;
 		this.clearShard();
 
 		this.playDropSound(Vec3d.ofCenter(pos));
@@ -333,6 +335,14 @@ public class ShardThiefActivePhase {
 
 	private void setSpectator(ServerPlayerEntity player) {
 		player.changeGameMode(GameMode.SPECTATOR);
+	}
+
+	public ShardThiefConfig getConfig() {
+		return this.config;
+	}
+
+	public boolean hasShardDropped() {
+		return this.shardDropped;
 	}
 
 	private PlayerOfferResult offerPlayer(PlayerOffer offer) {
