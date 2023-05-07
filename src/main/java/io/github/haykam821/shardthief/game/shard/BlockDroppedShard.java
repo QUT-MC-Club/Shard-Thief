@@ -6,10 +6,10 @@ import net.minecraft.block.BlockState;
 import net.minecraft.block.HorizontalFacingBlock;
 import net.minecraft.block.SlabBlock;
 import net.minecraft.block.StairsBlock;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.state.property.Properties;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.WorldAccess;
 
 public class BlockDroppedShard extends DroppedShard {
 	private final BlockPos blockPos;
@@ -40,12 +40,12 @@ public class BlockDroppedShard extends DroppedShard {
 	}
 
 	@Override
-	public void place(WorldAccess world) {
+	public void place(ServerWorld world) {
 		world.setBlockState(this.blockPos, this.getBlockState(), 3);
 	}
 
 	@Override
-	public void reset(WorldAccess world) {
+	public void reset(ServerWorld world) {
 		world.setBlockState(this.blockPos, this.oldState, 3);
 	}
 }

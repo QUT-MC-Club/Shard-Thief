@@ -1,6 +1,6 @@
 package io.github.haykam821.shardthief.game.phase;
 
-import eu.pb4.holograms.api.holograms.AbstractHologram;
+import eu.pb4.polymer.virtualentity.api.attachment.HolderAttachment;
 import io.github.haykam821.shardthief.game.ShardThiefConfig;
 import io.github.haykam821.shardthief.game.map.ShardThiefGuideText;
 import io.github.haykam821.shardthief.game.map.ShardThiefMap;
@@ -28,7 +28,7 @@ public class ShardThiefWaitingPhase {
 	private final ServerWorld world;
 	private final ShardThiefMap map;
 	private final ShardThiefConfig config;
-	private AbstractHologram guideText;
+	private HolderAttachment guideText;
 
 	public ShardThiefWaitingPhase(GameSpace gameSpace, ServerWorld world, ShardThiefMap map, ShardThiefConfig config) {
 		this.gameSpace = gameSpace;
@@ -63,7 +63,7 @@ public class ShardThiefWaitingPhase {
 
 	private void enable() {
 		// Spawn guide text
-		Vec3d center = this.map.getCenterSpawnPos().add(0, 2.8, 0);
+		Vec3d center = this.map.getCenterSpawnPos().add(0, 2, 0);
 		this.guideText = ShardThiefGuideText.spawn(this.world, center);
 	}
 

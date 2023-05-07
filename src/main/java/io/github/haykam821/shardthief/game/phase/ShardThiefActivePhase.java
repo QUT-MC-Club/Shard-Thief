@@ -5,7 +5,7 @@ import java.util.stream.Collectors;
 
 import com.google.common.collect.Sets;
 
-import eu.pb4.holograms.api.holograms.AbstractHologram;
+import eu.pb4.polymer.virtualentity.api.attachment.HolderAttachment;
 import io.github.haykam821.shardthief.game.PlayerShardEntry;
 import io.github.haykam821.shardthief.game.ShardInventoryManager;
 import io.github.haykam821.shardthief.game.ShardThiefConfig;
@@ -13,8 +13,8 @@ import io.github.haykam821.shardthief.game.ShardThiefCountBar;
 import io.github.haykam821.shardthief.game.event.AllowProjectileHitEvent;
 import io.github.haykam821.shardthief.game.map.ShardThiefMap;
 import io.github.haykam821.shardthief.game.shard.BlockDroppedShard;
+import io.github.haykam821.shardthief.game.shard.DisplayDroppedShard;
 import io.github.haykam821.shardthief.game.shard.DroppedShard;
-import io.github.haykam821.shardthief.game.shard.EntityDroppedShard;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.damage.DamageSource;
@@ -23,6 +23,7 @@ import net.minecraft.entity.effect.StatusEffects;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.projectile.PersistentProjectileEntity;
 import net.minecraft.entity.projectile.ProjectileEntity;
+import net.minecraft.registry.tag.DamageTypeTags;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
@@ -54,7 +55,7 @@ public class ShardThiefActivePhase {
 	private final Set<PlayerShardEntry> players;
 	private final ShardThiefCountBar countBar;
 
-	private final AbstractHologram guideText;
+	private final HolderAttachment guideText;
 	private int guideTicks;
 
 	private PlayerShardEntry shardHolder;
@@ -64,7 +65,7 @@ public class ShardThiefActivePhase {
 	private DroppedShard droppedShard;
 	private boolean shardDropped;
 
-	public ShardThiefActivePhase(GameSpace gameSpace, ServerWorld world, ShardThiefMap map, ShardThiefConfig config, Set<ServerPlayerEntity> players, GlobalWidgets widgets, AbstractHologram guideText) {
+	public ShardThiefActivePhase(GameSpace gameSpace, ServerWorld world, ShardThiefMap map, ShardThiefConfig config, Set<ServerPlayerEntity> players, GlobalWidgets widgets, HolderAttachment guideText) {
 		this.world = world;
 		this.gameSpace = gameSpace;
 		this.map = map;
@@ -76,7 +77,7 @@ public class ShardThiefActivePhase {
 
 		this.countBar = new ShardThiefCountBar(gameSpace.getMetadata().sourceConfig().name(), widgets);
 
-		this.placeEntityShard(this.map.getInitialShardPos());
+		this.placeDisplayShard(this.map.getInitialShardPos());
 
 		this.guideText = guideText;
 		this.guideTicks = this.config.getGuideTicks();
@@ -102,7 +103,7 @@ public class ShardThiefActivePhase {
 		}
 	}
 
-	public static void open(GameSpace gameSpace, ServerWorld world, ShardThiefMap map, ShardThiefConfig config, AbstractHologram guideText) {
+	public static void open(GameSpace gameSpace, ServerWorld world, ShardThiefMap map, ShardThiefConfig config, HolderAttachment guideText) {
 		gameSpace.setActivity(activity -> {
 			GlobalWidgets widgets = GlobalWidgets.addTo(activity);
 
@@ -204,7 +205,7 @@ public class ShardThiefActivePhase {
 
 		this.droppedShard.reset(this.world);
 
-		this.placeEntityShard(this.map.getInitialShardPos());
+		this.placeDisplayShard(this.map.getInitialShardPos());
 		this.playDropSound(pos);
 
 		Text message = this.droppedShard.getResetMessage();
@@ -216,8 +217,8 @@ public class ShardThiefActivePhase {
 		this.droppedShard.place(this.world);
 	}
 
-	private void placeEntityShard(Vec3d pos) {
-		this.droppedShard = new EntityDroppedShard(this, this.world, pos, this.config.getShardInvulnerability());
+	private void placeDisplayShard(Vec3d pos) {
+		this.droppedShard = new DisplayDroppedShard(this, this.world, pos, this.config.getShardInvulnerability());
 		this.droppedShard.place(this.world);
 	}
 
@@ -296,7 +297,7 @@ public class ShardThiefActivePhase {
 		if (this.guideTicks > 0) {
 			this.guideTicks -= 1;
 		} else if (this.guideText != null && this.guideTicks == 0) {
-			this.guideText.hide();
+			this.guideText.destroy();
 		}
 
 		if (this.droppedShard != null) {
@@ -381,7 +382,7 @@ public class ShardThiefActivePhase {
 
 		for (PlayerShardEntry entry : this.players) {
 			if (attacker.equals(entry.getPlayer())) {
-				if (source.isProjectile()) {
+				if (source.isIn(DamageTypeTags.IS_PROJECTILE)) {
 					this.dropShard();
 					if (source.getSource() instanceof ProjectileEntity) {
 						source.getSource().kill();
@@ -419,7 +420,7 @@ public class ShardThiefActivePhase {
 	public static void spawn(ServerWorld world, ShardThiefMap map, ServerPlayerEntity player, int index) {
 		Direction direction = Direction.fromHorizontal(index);
 		int distance = (int) Math.min(index / 4f + 4, 8);
-		Vec3d pos = map.getCenterSpawnPos().withBias(direction.getOpposite(), distance);
+		Vec3d pos = map.getCenterSpawnPos().offset(direction.getOpposite(), distance);
 
 		player.teleport(world, pos.getX(), pos.getY(), pos.getZ(), direction.asRotation(), 0);
 	}
