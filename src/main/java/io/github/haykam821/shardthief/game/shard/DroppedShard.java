@@ -18,7 +18,6 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.math.random.Random;
 import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.world.BlockView;
-import net.minecraft.world.WorldAccess;
 
 public abstract class DroppedShard {
 	protected static final BlockState FULL_DROP_STATE = Blocks.PRISMARINE.getDefaultState();
@@ -54,12 +53,16 @@ public abstract class DroppedShard {
 		return Block.isFaceFullSquare(collisionShape, Direction.UP);
 	}
 
-	public abstract void place(WorldAccess world);
+	public abstract void place(ServerWorld world);
 
-	public abstract void reset(WorldAccess world);
+	public abstract void reset(ServerWorld world);
 
 	public Text getResetMessage() {
 		return Text.translatable("text.shardthief.dropped_shard_reset").formatted(Formatting.RED);
+	}
+
+	public Vec3d getPos() {
+		return this.pos;
 	}
 
 	private boolean hasInvulnerability() {
