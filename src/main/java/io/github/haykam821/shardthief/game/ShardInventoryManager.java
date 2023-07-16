@@ -49,8 +49,7 @@ public class ShardInventoryManager {
 			player.getInventory().clear();
 			ShardInventoryManager.giveNonShardInventory(player);
 
-			ItemStack arrowStack = NON_SHARD_HOLDER_ARROW.copy();
-			arrowStack.setCount(arrows + 1);
+			ItemStack arrowStack = NON_SHARD_HOLDER_ARROW.copyWithCount(arrows + 1);
 			player.getInventory().setStack(1, arrowStack);
 
 			player.playSound(SoundEvents.ENTITY_ITEM_PICKUP, SoundCategory.PLAYERS, 1, 1);
