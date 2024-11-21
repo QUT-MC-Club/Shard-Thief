@@ -7,19 +7,20 @@ import io.github.haykam821.shardthief.game.map.ShardThiefMap;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.ActionResult;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.GameMode;
 import xyz.nucleoid.fantasy.RuntimeWorldConfig;
-import xyz.nucleoid.plasmid.game.GameOpenContext;
-import xyz.nucleoid.plasmid.game.GameOpenProcedure;
-import xyz.nucleoid.plasmid.game.GameResult;
-import xyz.nucleoid.plasmid.game.GameSpace;
-import xyz.nucleoid.plasmid.game.common.GameWaitingLobby;
-import xyz.nucleoid.plasmid.game.event.GameActivityEvents;
-import xyz.nucleoid.plasmid.game.event.GamePlayerEvents;
-import xyz.nucleoid.plasmid.game.player.PlayerOffer;
-import xyz.nucleoid.plasmid.game.player.PlayerOfferResult;
+import xyz.nucleoid.plasmid.api.game.GameOpenContext;
+import xyz.nucleoid.plasmid.api.game.GameOpenProcedure;
+import xyz.nucleoid.plasmid.api.game.GameResult;
+import xyz.nucleoid.plasmid.api.game.GameSpace;
+import xyz.nucleoid.plasmid.api.game.common.GameWaitingLobby;
+import xyz.nucleoid.plasmid.api.game.event.GameActivityEvents;
+import xyz.nucleoid.plasmid.api.game.event.GamePlayerEvents;
+import xyz.nucleoid.plasmid.api.game.player.JoinAcceptor;
+import xyz.nucleoid.plasmid.api.game.player.JoinAcceptorResult;
+import xyz.nucleoid.plasmid.api.game.player.JoinOffer;
+import xyz.nucleoid.stimuli.event.EventResult;
 import xyz.nucleoid.stimuli.event.player.PlayerDamageEvent;
 import xyz.nucleoid.stimuli.event.player.PlayerDeathEvent;
 
@@ -54,7 +55,8 @@ public class ShardThiefWaitingPhase {
 			// Listeners
 			activity.listen(GameActivityEvents.ENABLE, waiting::enable);
 			activity.listen(GameActivityEvents.TICK, waiting::tick);
-			activity.listen(GamePlayerEvents.OFFER, waiting::offerPlayer);
+			activity.listen(GamePlayerEvents.ACCEPT, waiting::onAcceptPlayers);
+			activity.listen(GamePlayerEvents.OFFER, JoinOffer::accept);
 			activity.listen(PlayerDamageEvent.EVENT, waiting::onPlayerDamage);
 			activity.listen(PlayerDeathEvent.EVENT, waiting::onPlayerDeath);
 			activity.listen(GameActivityEvents.REQUEST_START, waiting::requestStart);
@@ -78,20 +80,20 @@ public class ShardThiefWaitingPhase {
 		return GameResult.ok();
 	}
 
-	private PlayerOfferResult offerPlayer(PlayerOffer offer) {
-		return offer.accept(this.world, Vec3d.ZERO).and(() -> {
-			offer.player().changeGameMode(GameMode.ADVENTURE);
-			ShardThiefActivePhase.spawn(this.world, this.map, offer.player(), this.gameSpace.getPlayers().size() - 1);
+	private JoinAcceptorResult onAcceptPlayers(JoinAcceptor acceptor) {
+		return acceptor.teleport(this.world, Vec3d.ZERO).thenRunForEach(player -> {
+			player.changeGameMode(GameMode.ADVENTURE);
+			ShardThiefActivePhase.spawn(this.world, this.map, player, this.gameSpace.getPlayers().size() - 1);
 		});
 	}
 
-	private ActionResult onPlayerDamage(ServerPlayerEntity player, DamageSource source, float amount) {
-		return ActionResult.FAIL;
+	private EventResult onPlayerDamage(ServerPlayerEntity player, DamageSource source, float amount) {
+		return EventResult.DENY;
 	}
 
-	private ActionResult onPlayerDeath(ServerPlayerEntity player, DamageSource source) {
+	private EventResult onPlayerDeath(ServerPlayerEntity player, DamageSource source) {
 		// Respawn player
 		ShardThiefActivePhase.spawn(this.world, this.map, player, 0);
-		return ActionResult.FAIL;
+		return EventResult.DENY;
 	}
 }

@@ -1,7 +1,7 @@
 {
 	"required": true,
 	"package": "io.github.haykam821.shardthief.mixin",
-	"compatibilityLevel": "JAVA_17",
+	"compatibilityLevel": "JAVA_21",
 	"mixins": [
 		"PersistentProjectileEntityMixin"
 	],

@@ -2,8 +2,9 @@ package io.github.haykam821.shardthief.game.event;
 
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.projectile.PersistentProjectileEntity;
-import net.minecraft.util.ActionResult;
+import xyz.nucleoid.stimuli.event.EventResult;
 import xyz.nucleoid.stimuli.event.StimulusEvent;
+import xyz.nucleoid.stimuli.event.player.PlayerDamageEvent;
 
 /**
  * Called when a projectile attempts to hit an entity.
@@ -13,11 +14,11 @@ import xyz.nucleoid.stimuli.event.StimulusEvent;
  *
  * <p>Upon return:
  * <ul>
- * <li>{@link ActionResult#SUCCESS} cancels further processing and hits the entity.
- * <li>{@link ActionResult#FAIL} cancels further processing and does not hit the entity.
- * <li>{@link ActionResult#PASS} moves on to the next listener.</ul>
+ * <li>{@link EventResult#ALLOW} cancels further processing and hits the entity.
+ * <li>{@link EventResult#DENY} cancels further processing and does not hit the entity.
+ * <li>{@link EventResult#PASS} moves on to the next listener.</ul>
  *
- * <p>If all listeners return {@link ActionResult#PASS},
+ * <p>If all listeners return {@link EventResult#PASS},
  * the projectile hits the player as per normal behavior.
  */
 public interface AllowProjectileHitEvent {
@@ -25,17 +26,17 @@ public interface AllowProjectileHitEvent {
 		return (entity, projectile) -> {
 			try {
 				for (AllowProjectileHitEvent listener : context.getListeners()) {
-					ActionResult result = listener.allowProjectileHit(entity, projectile);
-					if (result != ActionResult.PASS) {
+					EventResult result = listener.allowProjectileHit(entity, projectile);
+					if (result != EventResult.PASS) {
 						return result;
 					}
 				}
 			} catch (Throwable throwable) {
 				context.handleException(throwable);
 			}
-			return ActionResult.PASS;
+			return EventResult.PASS;
 		};
 	});
 
-	ActionResult allowProjectileHit(Entity entity, PersistentProjectileEntity projectile);
+	EventResult allowProjectileHit(Entity entity, PersistentProjectileEntity projectile);
 }

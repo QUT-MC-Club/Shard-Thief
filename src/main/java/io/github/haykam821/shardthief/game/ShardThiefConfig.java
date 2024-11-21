@@ -1,19 +1,20 @@
 package io.github.haykam821.shardthief.game;
 
 import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 
 import io.github.haykam821.shardthief.game.map.ShardThiefMapConfig;
 import net.minecraft.SharedConstants;
 import net.minecraft.util.math.intprovider.ConstantIntProvider;
 import net.minecraft.util.math.intprovider.IntProvider;
-import xyz.nucleoid.plasmid.game.common.config.PlayerConfig;
+import xyz.nucleoid.plasmid.api.game.common.config.WaitingLobbyConfig;
 
 public class ShardThiefConfig {
-	public static final Codec<ShardThiefConfig> CODEC = RecordCodecBuilder.create(instance -> {
+	public static final MapCodec<ShardThiefConfig> CODEC = RecordCodecBuilder.mapCodec(instance -> {
 		return instance.group(
 			ShardThiefMapConfig.CODEC.fieldOf("map").forGetter(ShardThiefConfig::getMapConfig),
-			PlayerConfig.CODEC.fieldOf("players").forGetter(ShardThiefConfig::getPlayerConfig),
+			WaitingLobbyConfig.CODEC.fieldOf("players").forGetter(ShardThiefConfig::getPlayerConfig),
 			Codec.INT.optionalFieldOf("guide_ticks", 20 * 10).forGetter(ShardThiefConfig::getGuideTicks),
 			Codec.INT.optionalFieldOf("starting_counts", 20).forGetter(ShardThiefConfig::getStartingCounts),
 			Codec.INT.optionalFieldOf("restart_counts", 5).forGetter(ShardThiefConfig::getRestartCounts),
@@ -28,7 +29,7 @@ public class ShardThiefConfig {
 	});
 
 	private final ShardThiefMapConfig mapConfig;
-	private final PlayerConfig playerConfig;
+	private final WaitingLobbyConfig playerConfig;
 	private final int guideTicks;
 	private final int startingCounts;
 	private final int restartCounts;
@@ -40,7 +41,7 @@ public class ShardThiefConfig {
 	private final int droppedShardResetTicks;
 	private final IntProvider ticksUntilClose;
 
-	public ShardThiefConfig(ShardThiefMapConfig mapConfig, PlayerConfig playerConfig, int guideTicks, int startingCounts, int restartCounts, int countDuration, int shardInvulnerability, int kitRestockInterval, int maxArrows, int speedAmplifier, int droppedShardResetTicks, IntProvider ticksUntilClose) {
+	public ShardThiefConfig(ShardThiefMapConfig mapConfig, WaitingLobbyConfig playerConfig, int guideTicks, int startingCounts, int restartCounts, int countDuration, int shardInvulnerability, int kitRestockInterval, int maxArrows, int speedAmplifier, int droppedShardResetTicks, IntProvider ticksUntilClose) {
 		this.mapConfig = mapConfig;
 		this.playerConfig = playerConfig;
 		this.guideTicks = guideTicks;
@@ -59,7 +60,7 @@ public class ShardThiefConfig {
 		return this.mapConfig;
 	}
 
-	public PlayerConfig getPlayerConfig() {
+	public WaitingLobbyConfig getPlayerConfig() {
 		return this.playerConfig;
 	}
 

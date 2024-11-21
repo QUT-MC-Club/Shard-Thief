@@ -21,7 +21,7 @@ import net.minecraft.world.StructureWorldAccess;
 import net.minecraft.world.biome.source.FixedBiomeSource;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.gen.StructureAccessor;
-import xyz.nucleoid.plasmid.game.world.generator.GameChunkGenerator;
+import xyz.nucleoid.plasmid.api.game.world.generator.GameChunkGenerator;
 
 public final class ShardThiefChunkGenerator extends GameChunkGenerator {
 	private final ShardThiefMapConfig mapConfig;
@@ -62,7 +62,7 @@ public final class ShardThiefChunkGenerator extends GameChunkGenerator {
 
 
 		ChunkPos chunkPos = chunk.getPos();
-		BlockBox chunkBox = new BlockBox(chunkPos.getStartX(), chunk.getBottomY(), chunkPos.getStartZ(), chunkPos.getEndX(), chunk.getTopY(), chunkPos.getEndZ());
+		BlockBox chunkBox = new BlockBox(chunkPos.getStartX(), chunk.getBottomY(), chunkPos.getStartZ(), chunkPos.getEndX(), chunk.getTopYInclusive(), chunkPos.getEndZ());
 
 		if (!chunkBox.intersects(this.template.calculateBoundingBox(placementData, pos))) return;
 		placementData.setBoundingBox(chunkBox);

@@ -10,10 +10,10 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.projectile.PersistentProjectileEntity;
 import net.minecraft.entity.projectile.ProjectileEntity;
-import net.minecraft.util.ActionResult;
 import net.minecraft.world.World;
 import xyz.nucleoid.stimuli.EventInvokers;
 import xyz.nucleoid.stimuli.Stimuli;
+import xyz.nucleoid.stimuli.event.EventResult;
 
 @Mixin(PersistentProjectileEntity.class)
 public abstract class PersistentProjectileEntityMixin extends ProjectileEntity {
@@ -29,9 +29,9 @@ public abstract class PersistentProjectileEntityMixin extends ProjectileEntity {
 
 		try (EventInvokers invokers = Stimuli.select().forEntity(entity)) {
 			PersistentProjectileEntity projectile = (PersistentProjectileEntity) (Object) this;
-			ActionResult result = invokers.get(AllowProjectileHitEvent.EVENT).allowProjectileHit(entity, projectile);
+			EventResult result = invokers.get(AllowProjectileHitEvent.EVENT).allowProjectileHit(entity, projectile);
 
-			if (result == ActionResult.FAIL) {
+			if (result == EventResult.DENY) {
 				ci.setReturnValue(false);
 			}
 		}

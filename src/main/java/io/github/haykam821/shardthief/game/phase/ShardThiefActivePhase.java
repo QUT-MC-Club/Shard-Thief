@@ -29,21 +29,23 @@ import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.Text;
-import net.minecraft.util.ActionResult;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.GameMode;
-import xyz.nucleoid.plasmid.game.GameActivity;
-import xyz.nucleoid.plasmid.game.GameCloseReason;
-import xyz.nucleoid.plasmid.game.GameSpace;
-import xyz.nucleoid.plasmid.game.common.GlobalWidgets;
-import xyz.nucleoid.plasmid.game.event.GameActivityEvents;
-import xyz.nucleoid.plasmid.game.event.GamePlayerEvents;
-import xyz.nucleoid.plasmid.game.player.PlayerOffer;
-import xyz.nucleoid.plasmid.game.player.PlayerOfferResult;
-import xyz.nucleoid.plasmid.game.rule.GameRuleType;
+import xyz.nucleoid.plasmid.api.game.GameActivity;
+import xyz.nucleoid.plasmid.api.game.GameCloseReason;
+import xyz.nucleoid.plasmid.api.game.GameSpace;
+import xyz.nucleoid.plasmid.api.game.common.GlobalWidgets;
+import xyz.nucleoid.plasmid.api.game.config.GameConfig;
+import xyz.nucleoid.plasmid.api.game.event.GameActivityEvents;
+import xyz.nucleoid.plasmid.api.game.event.GamePlayerEvents;
+import xyz.nucleoid.plasmid.api.game.player.JoinAcceptor;
+import xyz.nucleoid.plasmid.api.game.player.JoinAcceptorResult;
+import xyz.nucleoid.plasmid.api.game.player.JoinOffer;
+import xyz.nucleoid.plasmid.api.game.rule.GameRuleType;
+import xyz.nucleoid.stimuli.event.EventResult;
 import xyz.nucleoid.stimuli.event.player.PlayerDamageEvent;
 import xyz.nucleoid.stimuli.event.player.PlayerDeathEvent;
 
@@ -54,6 +56,7 @@ public class ShardThiefActivePhase {
 	private final ShardThiefConfig config;
 	private final Set<PlayerShardEntry> players;
 	private final ShardThiefCountBar countBar;
+	private final ShardInventoryManager shardInventoryManager;
 
 	private final HolderAttachment guideText;
 	private int guideTicks;
@@ -75,7 +78,9 @@ public class ShardThiefActivePhase {
 			return new PlayerShardEntry(this, player);
 		}).collect(Collectors.toSet());
 
-		this.countBar = new ShardThiefCountBar(gameSpace.getMetadata().sourceConfig().name(), widgets);
+		this.countBar = new ShardThiefCountBar(GameConfig.name(gameSpace.getMetadata().sourceConfig()), widgets);
+
+		this.shardInventoryManager = new ShardInventoryManager(this.world.getRegistryManager());
 
 		this.placeDisplayShard(this.map.getInitialShardPos());
 
@@ -107,13 +112,14 @@ public class ShardThiefActivePhase {
 		gameSpace.setActivity(activity -> {
 			GlobalWidgets widgets = GlobalWidgets.addTo(activity);
 
-			ShardThiefActivePhase active = new ShardThiefActivePhase(gameSpace, world, map, config, Sets.newHashSet(gameSpace.getPlayers()), widgets, guideText);
+			ShardThiefActivePhase active = new ShardThiefActivePhase(gameSpace, world, map, config, Sets.newHashSet(gameSpace.getPlayers().participants()), widgets, guideText);
 			ShardThiefActivePhase.setRules(activity, true);
 
 			// Listeners
 			activity.listen(GameActivityEvents.ENABLE, active::enable);
 			activity.listen(GameActivityEvents.TICK, active::tick);
-			activity.listen(GamePlayerEvents.OFFER, active::offerPlayer);
+			activity.listen(GamePlayerEvents.ACCEPT, active::onAcceptPlayers);
+			activity.listen(GamePlayerEvents.OFFER, JoinOffer::acceptSpectators);
 			activity.listen(AllowProjectileHitEvent.EVENT, active::allowProjectileHit);
 			activity.listen(PlayerDamageEvent.EVENT, active::onPlayerDamage);
 			activity.listen(PlayerDeathEvent.EVENT, active::onPlayerDeath);
@@ -127,10 +133,17 @@ public class ShardThiefActivePhase {
 			ServerPlayerEntity player = entry.getPlayer();
 
 			player.changeGameMode(GameMode.ADVENTURE);
-			ShardInventoryManager.giveNonShardInventory(player);
+			this.shardInventoryManager.giveNonShardInventory(player);
 
 			ShardThiefActivePhase.spawn(this.world, this.map, player, index);
 			index += 1;
+		}
+
+		for (ServerPlayerEntity player : this.gameSpace.getPlayers().spectators()) {
+			Vec3d pos = this.map.getCenterSpawnPos();
+			player.teleport(world, pos.getX(), pos.getY(), pos.getZ(), Set.of(), 0, 0, true);
+
+			this.setSpectator(player);
 		}
 	}
 
@@ -149,7 +162,7 @@ public class ShardThiefActivePhase {
 		if (this.shardHolder == null) return;
 
 		this.shardHolder.getPlayer().getInventory().clear();
-		ShardInventoryManager.giveNonShardInventory(this.shardHolder.getPlayer());
+		this.shardInventoryManager.giveNonShardInventory(this.shardHolder.getPlayer());
 
 		if (this.shardHolder.getCounts() < this.config.getRestartCounts()) {
 			this.shardHolder.setCounts(this.config.getRestartCounts());
@@ -165,7 +178,7 @@ public class ShardThiefActivePhase {
 		entry.setInvulnerability(this.config.getShardInvulnerability());
 
 		entry.getPlayer().getInventory().clear();
-		ShardInventoryManager.giveShardInventory(entry.getPlayer());
+		this.shardInventoryManager.giveShardInventory(entry.getPlayer());
 	}
 
 	private void sendStealMessage() {
@@ -275,7 +288,7 @@ public class ShardThiefActivePhase {
 	private void restockKits() {
 		for (PlayerShardEntry entry : this.players) {
 			if (!entry.equals(this.shardHolder)) {
-				ShardInventoryManager.restockArrows(entry.getPlayer(), this.config.getMaxArrows());
+				this.shardInventoryManager.restockArrows(entry.getPlayer(), this.config.getMaxArrows());
 			}
 		}
 		this.ticksUntilKitRestock = this.config.getKitRestockInterval();
@@ -346,9 +359,9 @@ public class ShardThiefActivePhase {
 		return this.shardDropped;
 	}
 
-	private PlayerOfferResult offerPlayer(PlayerOffer offer) {
-		return offer.accept(this.world, this.map.getCenterSpawnPos()).and(() -> {
-			this.setSpectator(offer.player());
+	private JoinAcceptorResult onAcceptPlayers(JoinAcceptor acceptor) {
+		return acceptor.teleport(this.world, this.map.getCenterSpawnPos()).thenRunForEach(player -> {
+			this.setSpectator(player);
 		});
 	}
 
@@ -385,7 +398,7 @@ public class ShardThiefActivePhase {
 				if (source.isIn(DamageTypeTags.IS_PROJECTILE)) {
 					this.dropShard();
 					if (source.getSource() instanceof ProjectileEntity) {
-						source.getSource().kill();
+						source.getSource().kill(this.world);
 					}
  				} else if (this.shardHolder.canBeStolen()) {
 					this.setShardHolder(entry);
@@ -397,24 +410,24 @@ public class ShardThiefActivePhase {
 		}
 	}
 
-	private ActionResult allowProjectileHit(Entity entity, PersistentProjectileEntity projectile) {
+	private EventResult allowProjectileHit(Entity entity, PersistentProjectileEntity projectile) {
 		if (this.shardHolder != null) {
 			if (entity == this.shardHolder.getPlayer()) {
-				return ActionResult.SUCCESS;
+				return EventResult.ALLOW;
 			}
 		}
 
-		return ActionResult.FAIL;
+		return EventResult.DENY;
 	}
 
-	private ActionResult onPlayerDamage(ServerPlayerEntity damagedPlayer, DamageSource source, float damage) {
+	private EventResult onPlayerDamage(ServerPlayerEntity damagedPlayer, DamageSource source, float damage) {
 		this.tryTransferShard(damagedPlayer, source);
-		return ActionResult.FAIL;
+		return EventResult.DENY;
 	}
 
-	private ActionResult onPlayerDeath(ServerPlayerEntity player, DamageSource source) {
+	private EventResult onPlayerDeath(ServerPlayerEntity player, DamageSource source) {
 		ShardThiefActivePhase.spawn(this.world, this.map, player, 0);
-		return ActionResult.SUCCESS;
+		return EventResult.ALLOW;
 	}
 
 	public static void spawn(ServerWorld world, ShardThiefMap map, ServerPlayerEntity player, int index) {
@@ -422,7 +435,7 @@ public class ShardThiefActivePhase {
 		int distance = (int) Math.min(index / 4f + 4, 8);
 		Vec3d pos = map.getCenterSpawnPos().offset(direction.getOpposite(), distance);
 
-		player.teleport(world, pos.getX(), pos.getY(), pos.getZ(), direction.asRotation(), 0);
+		player.teleport(world, pos.getX(), pos.getY(), pos.getZ(), Set.of(), direction.asRotation(), 0, true);
 	}
 
 	public static void respawnIfOutOfBounds(ServerPlayerEntity player, ShardThiefMap map, ServerWorld world) {
